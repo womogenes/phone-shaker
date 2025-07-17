@@ -15,8 +15,10 @@ export function isMotionSupported() {
  * @returns {boolean} True if permission request is required
  */
 export function isPermissionRequired() {
-  return typeof DeviceMotionEvent !== 'undefined' && 
-         typeof DeviceMotionEvent.requestPermission === 'function';
+  return (
+    typeof DeviceMotionEvent !== 'undefined' &&
+    typeof DeviceMotionEvent.requestPermission === 'function'
+  );
 }
 
 /**
@@ -45,11 +47,11 @@ export function getPermissionStatus() {
   if (!isMotionSupported()) {
     return 'not-supported';
   }
-  
+
   if (isPermissionRequired()) {
     return 'needs-user-gesture';
   }
-  
+
   return 'not-required';
 }
 
@@ -69,13 +71,13 @@ export function createMotionDetector(onMotion, onError) {
       motionHandler = (event) => {
         // Use acceleration (without gravity) if available, fallback to accelerationIncludingGravity
         const acc = event.acceleration || event.accelerationIncludingGravity;
-        
+
         if (acc && acc.x !== null && acc.y !== null && acc.z !== null) {
           onMotion({
             x: acc.x || 0,
             y: acc.y || 0,
             z: acc.z || 0,
-            hasGravity: !event.acceleration // true if using accelerationIncludingGravity
+            hasGravity: !event.acceleration, // true if using accelerationIncludingGravity
           });
         }
       };
@@ -88,6 +90,6 @@ export function createMotionDetector(onMotion, onError) {
         window.removeEventListener('devicemotion', motionHandler);
         motionHandler = null;
       }
-    }
+    },
   };
 }

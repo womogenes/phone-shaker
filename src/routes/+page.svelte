@@ -247,7 +247,7 @@
   }
 </script>
 
-<div class="flex h-full justify-center">
+<div class="flex h-full items-center justify-center">
   <div class="mx-auto w-full max-w-md px-6 pt-10 pb-4">
     <div class="mb-8">
       <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
@@ -273,15 +273,9 @@
       </div>
     </div>
 
-    <div class="mb-4 flex flex-col space-y-2">
+    <div class="mb-4 flex flex-col space-y-4">
       {#if gameState === 'idle'}
-        <Button onclick={startGame} class="grow" size="lg">
-          {#if permissionStatus === 'needs-user-gesture'}
-            START
-          {:else}
-            START SHAKING
-          {/if}
-        </Button>
+        <Button onclick={startGame} class="grow" size="xl">START</Button>
         {#if permissionStatus === 'needs-user-gesture'}
           <p class="text-muted-foreground text-xs">tap the button to enable motion sensors</p>
         {/if}
@@ -294,11 +288,11 @@
         <div class="">
           <div class="font-semibold">game over</div>
           <div class="text-muted-foreground">you shook {currentScore} times</div>
-          {#if currentScore === highScore}
+          {#if currentScore > highScore}
             <div class="text-foreground font-semibold">new high score!</div>
           {/if}
         </div>
-        <Button onclick={resetGame} size="lg">PLAY AGAIN</Button>
+        <Button onclick={resetGame} size="xl">PLAY AGAIN</Button>
       {/if}
     </div>
 
