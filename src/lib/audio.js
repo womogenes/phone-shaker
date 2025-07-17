@@ -81,7 +81,7 @@ function createShakeSound() {
       gainNode.connect(audioContext.destination);
 
       // Short metronome click: brief, sharp, percussive
-      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime); // Clean 1kHz tone
+      oscillator.frequency.setValueAtTime(500, audioContext.currentTime); // Clean 1kHz tone
       oscillator.type = 'square'; // Square wave for sharper click
 
       // Very short, sharp attack and immediate decay

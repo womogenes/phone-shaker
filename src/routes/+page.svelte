@@ -1,5 +1,4 @@
 <script>
-  import * as Dialog from '$lib/components/ui/dialog';
   import { onDestroy, onMount } from 'svelte';
 
   // Import modular components
@@ -21,7 +20,14 @@
   } from '$lib/motion.js';
   import { switchToDarkMode, switchToLightMode } from '$lib/theme.js';
 
-  import Button from '@/components/ui/button/button.svelte';
+  // Shadcn components
+  import * as Dialog from '$lib/components/ui/dialog';
+  import Button, { buttonVariants } from '@/components/ui/button/button.svelte';
+
+  // Icons
+  import { InfoIcon } from '@lucide/svelte';
+  import { cn } from '@/utils';
+  import SettingsModal from '@/components/settings-modal.svelte';
 
   // Game state (pure Svelte 5 reactive state)
   let gameState = $state('idle'); // 'idle', 'playing', 'finished'
@@ -40,6 +46,7 @@
   let acceleration = $state({ x: 0, y: 0, z: 0 });
   let accelerationHistory = $state([]);
   let startTime = $state(0);
+  let showSettingsModal = $state(true);
 
   // Game systems
   let motionDetector = null;
@@ -265,15 +272,15 @@
     <div class="mb-8">
       <div class="mb-6 flex items-center justify-between">
         <div class="text-muted-foreground text-sm">
-          high score: <span class="text-foreground font-mono">{highScore}</span>
+          high score: <span class="text-foreground">{highScore}</span><br />
+          time: <span class="text-foreground">{timeLeft}s</span>
         </div>
-        <div class="text-muted-foreground text-sm">
-          time: <span class="text-foreground font-mono">{timeLeft}s</span>
-        </div>
+
+        <SettingsModal open={showSettingsModal} />
       </div>
 
       <div class="flex flex-col items-center">
-        <div class="text-foreground mb-0 font-mono text-8xl font-black">
+        <div class="text-foreground mb-0 text-8xl font-black">
           {shakeCount}
         </div>
         <div class="text-muted-foreground text-sm">shakes</div>
@@ -322,8 +329,8 @@
         results, open this site on a modern mobile device.
       </Dialog.Description>
       <Dialog.Footer>
-        <Button variant="secondary" onclick={retryPermission}>retry</Button>
-        <Button onclick={() => (showErrorModal = false)}>close</Button>
+        <Button variant="outline" onclick={retryPermission}>retry</Button>
+        <Dialog.Close class={buttonVariants()}>close</Dialog.Close>
       </Dialog.Footer>
     </Dialog.Header>
   </Dialog.Content>
