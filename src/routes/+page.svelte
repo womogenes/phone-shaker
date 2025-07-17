@@ -274,8 +274,9 @@
   <div class="mx-auto flex h-full w-full max-w-md flex-col justify-center px-6 pt-10">
     <div class="mb-8">
       <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
-        how fast can you shake your phone?
+        how fast can you shake?
       </h1>
+      <p class="text-muted-foreground text-sm">measure it now with this silly little app!</p>
     </div>
 
     <div class="mb-8">
@@ -306,10 +307,10 @@
         </div>
       {:else if gameState === 'finished'}
         <Button onclick={resetGame} size="xl">PLAY AGAIN</Button>
-        <div>
+        <div class="text-sm">
           <div class="text-sm"><b>game over</b> (you shook {currentScore} times)</div>
-          {#if currentScore > highScore}
-            <div class="text-foreground font-semibold">new high score!</div>
+          {#if currentScore >= highScore}
+            <div class="font-semibold">new high score!</div>
           {/if}
         </div>
       {/if}
