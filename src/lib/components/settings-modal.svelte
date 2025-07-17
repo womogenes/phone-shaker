@@ -69,11 +69,11 @@
           onclick={() => {
             localStorage.clear();
             window.location.reload();
-          }}>reset local data</Button
+          }}>reset data & reload</Button
         >
       </div>
 
-      <Dialog.Footer class="flex justify-end">
+      <Dialog.Footer class="flex self-end">
         <Dialog.Close class={buttonVariants()} onclick={() => (open = false)}>close</Dialog.Close>
       </Dialog.Footer>
     </Dialog.Header>

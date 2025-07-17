@@ -1,6 +1,5 @@
 <script lang="ts">
   import '../app.css';
-  import { onMount } from 'svelte';
 
   let { children } = $props();
 </script>
@@ -13,7 +12,7 @@
     rel="stylesheet"
   />
 
-  <title>how fast can you shake it</title>
+  <title>phone shaker 📱🫨</title>
 </svelte:head>
 
 {@render children()}
