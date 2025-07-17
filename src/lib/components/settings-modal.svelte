@@ -34,10 +34,12 @@
 </script>
 
 <Dialog.Root {open}>
-  <Dialog.Trigger class={cn(buttonVariants({ size: 'xs', variant: 'ghost' }), '!p-0')}>
+  <Dialog.Trigger
+    class={cn(buttonVariants({ size: 'xs', variant: 'ghost' }), 'relative -top-2 -right-2 p-2')}
+  >
     <SettingsIcon />
   </Dialog.Trigger>
-  <Dialog.Content class="">
+  <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title class="mb-4">settings</Dialog.Title>
 
