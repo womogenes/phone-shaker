@@ -1,6 +1,7 @@
 <script>
   import * as Dialog from '$lib/components/ui/dialog';
   import { onDestroy, onMount } from 'svelte';
+
   // Import modular components
   import {
     initAudioFromUserGesture,
@@ -8,9 +9,8 @@
     playGameEndSound,
     playShakeSound,
   } from '$lib/audio.js';
-
+  import { sendAccelerationHistory } from '$lib/data.js';
   import { createShakeDetector, isValidAcceleration } from '$lib/physics.js';
-
   import { triggerGameEndFeedback, triggerShakeFeedback } from '$lib/haptic.js';
   import {
     createMotionDetector,
@@ -20,12 +20,13 @@
     requestMotionPermission,
   } from '$lib/motion.js';
   import { switchToDarkMode, switchToLightMode } from '$lib/theme.js';
+
   import Button from '@/components/ui/button/button.svelte';
 
   // Game state (pure Svelte 5 reactive state)
   let gameState = $state('idle'); // 'idle', 'playing', 'finished'
   let shakeCount = $state(0);
-  let timeLeft = $state(10);
+  let timeLeft = $state(0);
   let currentScore = $state(0);
   let highScore = $state(0);
 
@@ -37,15 +38,18 @@
   let motionSupported = $state(false);
   let permissionStatus = $state('');
   let acceleration = $state({ x: 0, y: 0, z: 0 });
+  let accelerationHistory = $state([]);
 
   // Game systems
   let motionDetector = null;
   let shakeDetector = null;
   let timerInterval = null;
 
+  resetGame();
+
   onMount(() => {
     // Load high score from localStorage
-    const savedHighScore = localStorage.getItem('phoneShaker-highScore');
+    const savedHighScore = localStorage.getItem('high-score');
     if (savedHighScore) {
       highScore = parseInt(savedHighScore, 10);
     }
@@ -83,20 +87,20 @@
     permissionStatus = await getPermissionStatus();
 
     if (permissionStatus === 'not-required') {
-      debugInfo = 'No permission required, setting up motion detection...';
+      debugInfo = 'no permission required, setting up motion detection...';
       setupMotionDetection();
     } else {
-      debugInfo = 'Permission request required, will be requested when starting game';
+      debugInfo = 'permission request required, will be requested when starting game';
     }
   }
 
   function setupMotionDetection() {
-    debugInfo = 'Setting up motion detection...';
+    debugInfo = 'setting up motion detection...';
 
     motionDetector = createMotionDetector(handleMotion, showError);
     motionDetector.setup();
 
-    debugInfo = 'Motion detection ready';
+    debugInfo = 'motion detection ready';
   }
 
   function handleMotion(accelerationData) {
@@ -107,8 +111,11 @@
       return;
     }
 
-    const currentTime = Date.now();
+    const currentTime = window.performance.now(); // seconds since page load
     acceleration = accelerationData;
+
+    const { x, y, z } = accelerationData;
+    accelerationHistory.push([currentTime, x, y, z]);
 
     // Use the unified shake detector
     const shakeResult = shakeDetector.detectShake(accelerationData, currentTime);
@@ -121,7 +128,7 @@
       triggerShakeFeedback();
       playShakeSound();
 
-      debugInfo = `motion: ${shakeResult.motionMagnitude.toFixed(1)} (${shakeResult.sensorType}), Total: ${shakeCount}`;
+      debugInfo = `motion: ${shakeResult.motionMagnitude.toFixed(1)} (${shakeResult.sensorType}), total: ${shakeCount}`;
     }
   }
 
@@ -132,48 +139,43 @@
     // Request motion permission if needed
     if (permissionStatus === 'needs-user-gesture') {
       try {
-        debugInfo = 'Requesting motion permission...';
+        debugInfo = 'requesting motion permission...';
         const response = await requestMotionPermission();
         permissionStatus = response;
 
         if (response === 'granted') {
           setupMotionDetection();
         } else {
-          showError(`Motion permission denied: ${response}`);
+          showError(`motion permission denied: ${response}`);
           return;
         }
       } catch (error) {
-        showError(`Permission request failed: ${error.message}`);
+        showError(`permission request failed: ${error.message}`);
         return;
       }
     }
 
+    // Reset game state
+    resetGame();
+
     // Switch to dark mode
     switchToDarkMode();
 
-    // Reset game state
     gameState = 'playing';
-    shakeCount = 0;
-    timeLeft = 10;
-    currentScore = 0;
 
     // Reset shake detection
-    if (shakeDetector) {
-      shakeDetector.reset();
-    }
+    if (shakeDetector) shakeDetector.reset();
 
     // Start game timer
     timerInterval = setInterval(() => {
       timeLeft--;
-      debugInfo = `Game in progress: ${timeLeft}s remaining`;
+      debugInfo = `game in progress: ${timeLeft}s remaining`;
 
-      if (timeLeft <= 0) {
-        endGame();
-      }
+      if (timeLeft <= 0) endGame();
     }, 1000);
   }
 
-  function endGame() {
+  async function endGame() {
     // Stop timer
     if (timerInterval) {
       clearInterval(timerInterval);
@@ -187,7 +189,7 @@
     const isNewHighScore = currentScore > highScore;
     if (isNewHighScore) {
       highScore = currentScore;
-      localStorage.setItem('phoneShaker-highScore', highScore.toString());
+      localStorage.setItem('high-score', highScore.toString());
     }
 
     // Switch back to light mode
@@ -197,7 +199,10 @@
     playGameEndSound();
     triggerGameEndFeedback();
 
-    debugInfo = `Game ended! Score: ${currentScore}${isNewHighScore ? ' (New High Score!)' : ''}`;
+    // Send data to server for auditing
+    await sendAccelerationHistory(accelerationHistory);
+
+    debugInfo = `game ended! score: ${currentScore}${isNewHighScore ? ' (new high score!)' : ''}`;
   }
 
   function resetGame() {
@@ -210,7 +215,7 @@
     // Reset all state
     gameState = 'idle';
     shakeCount = 0;
-    timeLeft = 10;
+    timeLeft = 2;
     currentScore = 0;
     if (shakeDetector) {
       shakeDetector.reset();
@@ -218,7 +223,7 @@
     acceleration = { x: 0, y: 0, z: 0 };
 
     switchToLightMode();
-    debugInfo = 'Game reset';
+    debugInfo = 'game reset';
   }
 
   function showError(message) {
@@ -273,21 +278,20 @@
       </div>
     </div>
 
-    <div class="mb-4 flex flex-col space-y-4">
+    <div class="mb-4 flex h-[84px] flex-col space-y-2">
       {#if gameState === 'idle'}
-        <Button onclick={startGame} class="grow" size="xl">START</Button>
+        <Button onclick={startGame} size="xl">START</Button>
         {#if permissionStatus === 'needs-user-gesture'}
           <p class="text-muted-foreground text-xs">tap the button to enable motion sensors</p>
         {/if}
       {:else if gameState === 'playing'}
-        <div class="flex flex-col items-center">
+        <div class="flex h-14 flex-col items-center">
           <div class="font-semibold">shake it like it's hot</div>
           <div class="text-muted-foreground text-sm">keep shaking your phone</div>
         </div>
       {:else if gameState === 'finished'}
-        <div class="">
-          <div class="font-semibold">game over</div>
-          <div class="text-muted-foreground">you shook {currentScore} times</div>
+        <div>
+          <div class="text-sm"><b>game over</b> (you shook {currentScore} times)</div>
           {#if currentScore > highScore}
             <div class="text-foreground font-semibold">new high score!</div>
           {/if}

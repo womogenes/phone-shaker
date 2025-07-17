@@ -9,9 +9,9 @@
     @apply border-border outline-ring/50;
   }
   html {
-    @apply h-full overscroll-none;
+    @apply h-full overflow-clip overscroll-none;
   }
   body {
-    @apply bg-background text-foreground h-full overscroll-none;
+    @apply bg-background text-foreground !m-0 h-full overflow-clip overscroll-none transition-colors;
   }
 }
