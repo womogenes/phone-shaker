@@ -13,25 +13,31 @@
   />
 
   <title>phone shaker 📱🫨</title>
-  <meta name="description" content="measure how fast you can shake your phone in 10 seconds. minimal web game using device motion sensors." />
-  
+  <meta name="description" content="measure how fast you can shake your phone in 10 seconds." />
+
   <!-- OpenGraph meta tags -->
   <meta property="og:title" content="phone shaker 📱🫨" />
-  <meta property="og:description" content="measure how fast you can shake your phone in 10 seconds. minimal web game using device motion sensors." />
+  <meta
+    property="og:description"
+    content="measure how fast you can shake your phone in 10 seconds."
+  />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://phone-shaker.vercel.app" />
+  <meta property="og:url" content="howfastcanyoushake.me" />
   <meta property="og:site_name" content="phone shaker" />
-  
+
   <!-- Twitter Card meta tags -->
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="phone shaker 📱🫨" />
-  <meta name="twitter:description" content="measure how fast you can shake your phone in 10 seconds. minimal web game using device motion sensors." />
-  
+  <meta
+    name="twitter:description"
+    content="measure how fast you can shake your phone in 10 seconds."
+  />
+
   <!-- Additional meta tags -->
   <meta name="author" content="phone shaker" />
-  <meta name="keywords" content="shake, phone, mobile, game, motion, sensor, minimal, web, experiment" />
+  <meta name="keywords" content="shake,phone,mobile,game,motion,sensor,minimal,web,experiment" />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://phone-shaker.vercel.app" />
+  <link rel="canonical" href="howfastcanyoushake.me" />
 </svelte:head>
 
 {@render children()}
