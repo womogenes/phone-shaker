@@ -56,9 +56,7 @@ export function triggerCounterAnimation(animationElement) {
  * @param {HTMLElement} phoneElement - The phone element to animate
  * @param {HTMLElement} animationElement - The counter element to animate
  */
-export function triggerShakeFeedback(phoneElement, animationElement) {
-  triggerPhoneAnimation(phoneElement);
-  triggerCounterAnimation(animationElement);
+export function triggerShakeFeedback() {
   triggerHapticFeedback(0.5);
 }
 

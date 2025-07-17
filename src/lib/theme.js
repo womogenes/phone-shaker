@@ -9,6 +9,7 @@
 export function switchToDarkMode() {
   if (typeof document !== 'undefined') {
     document.documentElement.classList.add('dark');
+    setMetaThemeColor();
   }
 }
 
@@ -18,6 +19,7 @@ export function switchToDarkMode() {
 export function switchToLightMode() {
   if (typeof document !== 'undefined') {
     document.documentElement.classList.remove('dark');
+    setMetaThemeColor();
   }
 }
 
@@ -36,12 +38,9 @@ export function isDarkMode() {
  * Toggle between dark and light mode
  * @returns {boolean} True if now in dark mode
  */
-export function toggleTheme() {
-  if (isDarkMode()) {
-    switchToLightMode();
-    return false;
-  } else {
-    switchToDarkMode();
-    return true;
-  }
+export function setMetaThemeColor() {
+  const bgColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--background')
+    .trim();
+  document.querySelector('meta[name="theme-color"]').content = bgColor;
 }

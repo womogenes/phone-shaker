@@ -30,7 +30,6 @@
   let highScore = $state(0);
 
   // UI state
-  let phoneElement = $state();
   let animationElement = $state();
   let errorMessage = $state('');
   let showErrorModal = $state(false);
@@ -50,7 +49,7 @@
     if (savedHighScore) {
       highScore = parseInt(savedHighScore, 10);
     }
-    
+
     // Initialize shake detector
     shakeDetector = createShakeDetector();
 
@@ -93,10 +92,10 @@
 
   function setupMotionDetection() {
     debugInfo = 'Setting up motion detection...';
-    
+
     motionDetector = createMotionDetector(handleMotion, showError);
     motionDetector.setup();
-    
+
     debugInfo = 'Motion detection ready';
   }
 
@@ -119,10 +118,10 @@
       shakeCount++;
 
       // Trigger all feedback
-      triggerShakeFeedback(phoneElement, animationElement);
+      triggerShakeFeedback();
       playShakeSound();
 
-      debugInfo = `Shake detected! Motion: ${shakeResult.motionMagnitude.toFixed(1)} (${shakeResult.sensorType}), Total: ${shakeCount}`;
+      debugInfo = `motion: ${shakeResult.motionMagnitude.toFixed(1)} (${shakeResult.sensorType}), Total: ${shakeCount}`;
     }
   }
 
@@ -248,11 +247,13 @@
   }
 </script>
 
-<div class="flex items-center justify-center">
-  <div class="mx-auto w-full max-w-lg px-6 pt-10 pb-4 text-center">
+<div class="flex h-full items-center justify-center">
+  <div class="mx-auto w-full max-w-md px-6 pt-10 pb-4">
     <div class="mb-8">
-      <h1 class="text-foreground mb-2 text-3xl font-bold">Phone Shaker</h1>
-      <p class="text-muted-foreground">Shake your phone as fast as you can in 10 seconds</p>
+      <h1 class="text-foreground mb-4 text-5xl leading-10 font-extrabold">
+        HOW FAST CAN YOU SHAKE YOUR PHONE?
+      </h1>
+      <p class="text-muted-foreground">Shake your phone as fast as you can in ten seconds</p>
     </div>
 
     <div class="mb-8">
@@ -263,13 +264,6 @@
         <div class="text-muted-foreground text-sm">
           Time: <span class="text-foreground font-mono">{timeLeft}s</span>
         </div>
-      </div>
-
-      <div
-        bind:this={phoneElement}
-        class="border-border bg-muted relative mx-auto mb-6 flex h-24 w-24 items-center justify-center border"
-      >
-        <div bind:this={animationElement} class="text-4xl">📱</div>
       </div>
 
       <div class="text-foreground mb-2 font-mono text-5xl font-bold">
@@ -323,7 +317,13 @@
         <p>Permission: {permissionStatus}</p>
         {#if gameState === 'playing'}
           <p>Data: {acceleration.hasGravity ? 'with gravity' : 'gravity-free'}</p>
-          <p>Raw: {Math.sqrt(acceleration.x * acceleration.x + acceleration.y * acceleration.y + acceleration.z * acceleration.z).toFixed(1)}</p>
+          <p>
+            Raw: {Math.sqrt(
+              acceleration.x * acceleration.x +
+                acceleration.y * acceleration.y +
+                acceleration.z * acceleration.z,
+            ).toFixed(1)}
+          </p>
         {/if}
       </div>
     </div>
