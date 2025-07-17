@@ -1,107 +1,74 @@
 /**
  * Physics-based shake detection for the phone shaker game
- * Implements a state machine approach to accurately detect physical shaking motions
+ * Implements peak detection to accurately count directional changes
  */
 
-// Tuned thresholds based on real device testing
-export const SHAKE_THRESHOLD = 15; // Minimum acceleration to start a shake
-export const SHAKE_END_THRESHOLD = 8; // Acceleration below this ends the shake
-export const MIN_SHAKE_DURATION = 10; // Minimum shake duration (ms)
-export const SHAKE_COOLDOWN = 10; // Minimum time between shakes (ms)
-export const HISTORY_SIZE = 10; // Number of acceleration samples to keep
+// Tuned thresholds for optimal shake detection
+export const MOTION_THRESHOLD = 2.0; // Minimum motion to count as shake
+export const PEAK_COOLDOWN = 100; // ms between peaks
 
 /**
- * Create a new shake detector instance
- * @returns {Object} Shake detector with state and methods
+ * Create a peak-detection shake detector
+ * @returns {Object} Shake detector with detectShake method and state
  */
 export function createShakeDetector() {
-  let state = 'idle'; // 'idle', 'shaking', 'cooldown'
-  let startTime = 0;
-  let lastShakeTime = 0;
-  let accelerationHistory = [];
+  let lastAccelMagnitude = 0;
+  let recentPeaks = [];
 
   return {
     /**
-     * Get current shake detection state
-     * @returns {string} Current state
+     * Detect shakes using peak detection algorithm
+     * @param {Object} accelerationData - Acceleration data {x, y, z, isLinear}
+     * @param {number} currentTime - Current timestamp
+     * @returns {Object|null} Shake result with motion magnitude, or null if no shake
      */
-    getState() {
-      return state;
+    detectShake(accelerationData, currentTime) {
+      const magnitude = calculateAccelerationMagnitude(accelerationData);
+      
+      // Calculate motion magnitude (remove gravity if needed)
+      const motionMagnitude = accelerationData.hasGravity 
+        ? Math.abs(magnitude - 9.8) // Remove gravity
+        : magnitude; // Already gravity-free
+
+      // Clean up old peaks (remove peaks older than 1 second)
+      recentPeaks = recentPeaks.filter(time => currentTime - time < 1000);
+
+      // Detect peaks: current motion is high AND previous was low
+      const isMotionSpike = motionMagnitude > MOTION_THRESHOLD && lastAccelMagnitude <= MOTION_THRESHOLD;
+      const enoughTimeSinceLastPeak = recentPeaks.length === 0 || 
+        currentTime - recentPeaks[recentPeaks.length - 1] > PEAK_COOLDOWN;
+
+      let shakeDetected = false;
+      if (isMotionSpike && enoughTimeSinceLastPeak) {
+        recentPeaks.push(currentTime);
+        shakeDetected = true;
+      }
+
+      lastAccelMagnitude = motionMagnitude;
+
+      return shakeDetected ? {
+        motionMagnitude,
+        sensorType: accelerationData.hasGravity ? 'motion+gravity' : 'motion-only'
+      } : null;
     },
 
     /**
-     * Get acceleration history
-     * @returns {Array<number>} Array of recent acceleration magnitudes
-     */
-    getHistory() {
-      return [...accelerationHistory];
-    },
-
-    /**
-     * Reset the shake detector to initial state
+     * Reset the shake detector state
      */
     reset() {
-      state = 'idle';
-      startTime = 0;
-      lastShakeTime = 0;
-      accelerationHistory = [];
+      lastAccelMagnitude = 0;
+      recentPeaks = [];
     },
 
     /**
-     * Process acceleration data and detect shakes
-     * @param {number} magnitude - Acceleration magnitude
-     * @param {number} currentTime - Current timestamp
-     * @returns {boolean} True if a shake was detected
+     * Get debug information
+     * @returns {Object} Debug state
      */
-    detectShake(magnitude, currentTime) {
-      // Add to history for trend analysis
-      accelerationHistory.push(magnitude);
-      if (accelerationHistory.length > HISTORY_SIZE) {
-        accelerationHistory.shift();
-      }
-
-      // Physics-based shake detection state machine
-      switch (state) {
-        case 'idle':
-          // Look for start of shake: high acceleration
-          if (magnitude > SHAKE_THRESHOLD) {
-            // Ensure minimum time since last shake (prevent double-counting)
-            if (currentTime - lastShakeTime > SHAKE_COOLDOWN) {
-              state = 'shaking';
-              startTime = currentTime;
-            }
-          }
-          return false;
-
-        case 'shaking':
-          // Look for end of shake: sustained low acceleration
-          if (magnitude < SHAKE_END_THRESHOLD) {
-            const shakeDuration = currentTime - startTime;
-
-            // Ensure shake lasted minimum duration (filter out noise)
-            if (shakeDuration > MIN_SHAKE_DURATION) {
-              // Valid shake detected!
-              lastShakeTime = currentTime;
-              state = 'cooldown';
-              return true;
-            } else {
-              // Too short, probably noise
-              state = 'idle';
-            }
-          }
-          // Stay in shaking state while acceleration remains high
-          return false;
-
-        case 'cooldown':
-          // Brief cooldown to prevent immediate re-triggering
-          if (currentTime - lastShakeTime > SHAKE_COOLDOWN / 2) {
-            state = 'idle';
-          }
-          return false;
-
-        default:
-          return false;
-      }
+    getDebugInfo() {
+      return {
+        lastMagnitude: lastAccelMagnitude,
+        recentPeaksCount: recentPeaks.length
+      };
     }
   };
 }
@@ -115,8 +82,8 @@ export function createShakeDetector() {
 export function calculateAccelerationMagnitude(acceleration) {
   return Math.sqrt(
     acceleration.x * acceleration.x +
-    acceleration.y * acceleration.y +
-    acceleration.z * acceleration.z
+      acceleration.y * acceleration.y +
+      acceleration.z * acceleration.z,
   );
 }
 
@@ -126,11 +93,13 @@ export function calculateAccelerationMagnitude(acceleration) {
  * @returns {boolean} True if acceleration data is valid
  */
 export function isValidAcceleration(acceleration) {
-  return acceleration &&
+  return (
+    acceleration &&
     typeof acceleration.x === 'number' &&
     typeof acceleration.y === 'number' &&
     typeof acceleration.z === 'number' &&
     !isNaN(acceleration.x) &&
     !isNaN(acceleration.y) &&
-    !isNaN(acceleration.z);
+    !isNaN(acceleration.z)
+  );
 }

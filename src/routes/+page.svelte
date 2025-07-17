@@ -10,10 +10,7 @@
     initAudioFromUserGesture,
   } from '$lib/audio.js';
 
-  import {
-    calculateAccelerationMagnitude,
-    isValidAcceleration,
-  } from '$lib/physics.js';
+  import { createShakeDetector, isValidAcceleration } from '$lib/physics.js';
 
   import {
     isMotionSupported,
@@ -21,7 +18,6 @@
     requestMotionPermission,
     getPermissionStatus,
     createMotionDetector,
-    extractAcceleration,
   } from '$lib/motion.js';
   import { switchToDarkMode, switchToLightMode } from '$lib/theme.js';
   import { triggerShakeFeedback, triggerGameEndFeedback } from '$lib/haptic.js';
@@ -32,12 +28,7 @@
   let timeLeft = $state(10);
   let currentScore = $state(0);
   let highScore = $state(0);
-  
-  // Shake detection state
-  let shakeState = $state('idle'); // 'idle', 'shaking', 'cooldown'
-  let lastShakeTime = $state(0);
-  let shakeStartTime = $state(0);
-  
+
   // UI state
   let phoneElement = $state();
   let animationElement = $state();
@@ -47,9 +38,10 @@
   let motionSupported = $state(false);
   let permissionStatus = $state('');
   let acceleration = $state({ x: 0, y: 0, z: 0 });
-  
+
   // Game systems
   let motionDetector = null;
+  let shakeDetector = null;
   let timerInterval = null;
 
   onMount(() => {
@@ -59,6 +51,9 @@
       highScore = parseInt(savedHighScore, 10);
     }
     
+    // Initialize shake detector
+    shakeDetector = createShakeDetector();
+
     // Initialize audio system
     initializeAudioContext();
 
@@ -81,12 +76,11 @@
     debugInfo = 'Checking motion support...';
 
     if (!isMotionSupported()) {
-      showError('DeviceMotionEvent is not supported on this device/browser');
+      showError('DeviceMotion not supported on this device/browser');
       return;
     }
 
     motionSupported = true;
-    debugInfo = 'DeviceMotionEvent supported';
     permissionStatus = getPermissionStatus();
 
     if (permissionStatus === 'not-required') {
@@ -99,15 +93,15 @@
 
   function setupMotionDetection() {
     debugInfo = 'Setting up motion detection...';
-
+    
     motionDetector = createMotionDetector(handleMotion, showError);
     motionDetector.setup();
+    
+    debugInfo = 'Motion detection ready';
   }
 
-  function handleMotion(event) {
+  function handleMotion(accelerationData) {
     if (gameState !== 'playing') return;
-
-    const accelerationData = extractAcceleration(event);
 
     if (!isValidAcceleration(accelerationData)) {
       debugInfo = 'No acceleration data available';
@@ -117,36 +111,18 @@
     const currentTime = Date.now();
     acceleration = accelerationData;
 
-    // Calculate acceleration magnitude: |a| = √(ax² + ay² + az²)
-    const magnitude = calculateAccelerationMagnitude(accelerationData);
+    // Use the unified shake detector
+    const shakeResult = shakeDetector.detectShake(accelerationData, currentTime);
 
-    // Physics-based shake detection state machine
-    const SHAKE_THRESHOLD = 15;
-    const SHAKE_END_THRESHOLD = 8;
-    const MIN_SHAKE_DURATION = 100;
-    const SHAKE_COOLDOWN = 200;
+    if (shakeResult) {
+      // Shake detected!
+      shakeCount++;
 
-    if (shakeState === 'idle' && magnitude > SHAKE_THRESHOLD) {
-      shakeState = 'shaking';
-      shakeStartTime = currentTime;
-    } else if (shakeState === 'shaking' && magnitude < SHAKE_END_THRESHOLD) {
-      const shakeDuration = currentTime - shakeStartTime;
-      if (shakeDuration >= MIN_SHAKE_DURATION) {
-        // Valid shake detected
-        shakeCount++;
-        shakeState = 'cooldown';
-        lastShakeTime = currentTime;
+      // Trigger all feedback
+      triggerShakeFeedback(phoneElement, animationElement);
+      playShakeSound();
 
-        // Trigger all feedback
-        triggerShakeFeedback(phoneElement, animationElement);
-        playShakeSound();
-
-        debugInfo = `Shake detected! Total: ${shakeCount}`;
-      } else {
-        shakeState = 'idle';
-      }
-    } else if (shakeState === 'cooldown' && currentTime - lastShakeTime > SHAKE_COOLDOWN) {
-      shakeState = 'idle';
+      debugInfo = `Shake detected! Motion: ${shakeResult.motionMagnitude.toFixed(1)} (${shakeResult.sensorType}), Total: ${shakeCount}`;
     }
   }
 
@@ -181,17 +157,17 @@
     shakeCount = 0;
     timeLeft = 10;
     currentScore = 0;
-    
+
     // Reset shake detection
-    shakeState = 'idle';
-    lastShakeTime = 0;
-    shakeStartTime = 0;
+    if (shakeDetector) {
+      shakeDetector.reset();
+    }
 
     // Start game timer
     timerInterval = setInterval(() => {
       timeLeft--;
       debugInfo = `Game in progress: ${timeLeft}s remaining`;
-      
+
       if (timeLeft <= 0) {
         endGame();
       }
@@ -204,10 +180,10 @@
       clearInterval(timerInterval);
       timerInterval = null;
     }
-    
+
     gameState = 'finished';
     currentScore = shakeCount;
-    
+
     // Check for new high score
     const isNewHighScore = currentScore > highScore;
     if (isNewHighScore) {
@@ -231,17 +207,17 @@
       clearInterval(timerInterval);
       timerInterval = null;
     }
-    
+
     // Reset all state
     gameState = 'idle';
     shakeCount = 0;
     timeLeft = 10;
     currentScore = 0;
-    shakeState = 'idle';
-    lastShakeTime = 0;
-    shakeStartTime = 0;
+    if (shakeDetector) {
+      shakeDetector.reset();
+    }
     acceleration = { x: 0, y: 0, z: 0 };
-    
+
     switchToLightMode();
     debugInfo = 'Game reset';
   }
@@ -273,7 +249,7 @@
 </script>
 
 <div class="flex items-center justify-center">
-  <div class="mx-auto w-full max-w-lg px-6 pt-12 pb-4 text-center">
+  <div class="mx-auto w-full max-w-lg px-6 pt-10 pb-4 text-center">
     <div class="mb-8">
       <h1 class="text-foreground mb-2 text-3xl font-bold">Phone Shaker</h1>
       <p class="text-muted-foreground">Shake your phone as fast as you can in 10 seconds</p>
@@ -339,17 +315,15 @@
       {/if}
     </div>
 
-    <div class="text-muted-foreground mt-8 text-xs">
+    <div class="text-muted-foreground mt-8 text-xs tabular-nums">
       <!-- Debug info -->
       <div class="text-muted-foreground mt-4 flex flex-col gap-1 text-xs">
         <p>Debug: {debugInfo}</p>
         <p>Motion: {motionSupported ? 'Supported' : 'Not supported'}</p>
         <p>Permission: {permissionStatus}</p>
         {#if gameState === 'playing'}
-          <p>Shake State: {shakeState}</p>
-          <p>
-            Acceleration: {calculateAccelerationMagnitude(acceleration).toFixed(1)}
-          </p>
+          <p>Data: {acceleration.hasGravity ? 'with gravity' : 'gravity-free'}</p>
+          <p>Raw: {Math.sqrt(acceleration.x * acceleration.x + acceleration.y * acceleration.y + acceleration.z * acceleration.z).toFixed(1)}</p>
         {/if}
       </div>
     </div>
