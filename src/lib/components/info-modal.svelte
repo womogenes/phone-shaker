@@ -13,7 +13,7 @@
     <Dialog.Header>
       <Dialog.Title class="mb-4">how to play</Dialog.Title>
 
-      <div class="mb-4 flex flex-col gap-4 text-sm">
+      <div class="text-secondary-foreground mb-4 flex flex-col gap-4 text-sm">
         <p>click start and shake your phone as fast as you can in ten seconds.</p>
         <p>coming soon: global leaderboard</p>
       </div>

@@ -327,14 +327,16 @@
   </div>
 </div>
 
-<Dialog.Root open={showErrorModal}>
+<Dialog.Root open={showErrorModal} onOpenChange={(open) => showErrorModal = open}>
   <Dialog.Content>
     <Dialog.Header>
-      <Dialog.Title>device motion API unsupported</Dialog.Title>
-      <Dialog.Description>
+      <Dialog.Title class="mb-4">device motion API unsupported</Dialog.Title>
+
+      <div class="text-secondary-foreground mb-4 text-sm">
         your device may not support the motion APIs required to run this experiment. try opening
         this site on a mobile device or closing and reopening your browser app.
-      </Dialog.Description>
+      </div>
+
       <Dialog.Footer class="flex w-full flex-row gap-4">
         <Button class="grow" variant="outline" onclick={retryPermission}>retry</Button>
         <Button class={cn('grow', buttonVariants())} onclick={() => (showErrorModal = false)}>
