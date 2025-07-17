@@ -12,11 +12,11 @@
     rel="stylesheet"
   />
 
-  <title>phone shaker 📱🫨</title>
+  <title>shake speed test</title>
   <meta name="description" content="measure how fast you can shake your phone in 10 seconds." />
 
   <!-- OpenGraph meta tags -->
-  <meta property="og:title" content="phone shaker 📱🫨" />
+  <meta property="og:title" content="shake speed test 🫨" />
   <meta
     property="og:description"
     content="measure how fast you can shake your phone in 10 seconds."
@@ -27,14 +27,14 @@
 
   <!-- Twitter Card meta tags -->
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="phone shaker 📱🫨" />
+  <meta name="twitter:title" content="shake speed test 🫨" />
   <meta
     name="twitter:description"
     content="measure how fast you can shake your phone in 10 seconds."
   />
 
   <!-- Additional meta tags -->
-  <meta name="author" content="phone shaker" />
+  <meta name="author" content="womogenes" />
   <meta name="keywords" content="shake,phone,mobile,game,motion,sensor,minimal,web,experiment" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="howfastcanyoushake.me" />
