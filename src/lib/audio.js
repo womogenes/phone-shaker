@@ -83,17 +83,19 @@ function createShakeSound() {
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      // Short metronome click: brief, sharp, percussive
-      oscillator.frequency.setValueAtTime(500, audioContext.currentTime); // Clean 1kHz tone
-      oscillator.type = 'square'; // Square wave for sharper click
+      // Set up oscillator
+      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime); // Higher pitch for click
+      oscillator.type = 'square'; // Sharp, digital edge
 
-      // Very short, sharp attack and immediate decay
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.005); // Instant attack
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.03); // Quick decay
+      const now = audioContext.currentTime;
 
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.03); // Very short duration
+      // Click envelope: very short attack and faster decay
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.6, now + 0.001); // Instant attack
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.02); // Faster decay
+
+      oscillator.start(now);
+      oscillator.stop(now + 0.025); // Total duration just 25ms
     } catch (error) {
       console.log('Shake sound playback error:', error);
     }

@@ -19,6 +19,7 @@
     requestMotionPermission,
   } from '$lib/motion.js';
   import { switchToDarkMode, switchToLightMode } from '$lib/theme.js';
+  import { cn } from '@/utils';
 
   // Shadcn components
   import * as Dialog from '$lib/components/ui/dialog';
@@ -26,8 +27,8 @@
 
   // Icons
   import { InfoIcon } from '@lucide/svelte';
-  import { cn } from '@/utils';
   import SettingsModal from '$lib/components/settings-modal.svelte';
+  import InfoModal from '$lib/components/info-modal.svelte';
 
   // Game state (pure Svelte 5 reactive state)
   let gameState = $state('idle'); // 'idle', 'playing', 'finished'
@@ -261,8 +262,8 @@
   }
 </script>
 
-<div class="flex h-full items-center justify-center">
-  <div class="mx-auto w-full max-w-md px-6 pt-10 pb-4">
+<div class="flex h-full flex-col items-center justify-center pb-5">
+  <div class="mx-auto flex h-full w-full max-w-md flex-col justify-center px-6 pt-10">
     <div class="mb-8">
       <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
         how fast can you shake your phone?
@@ -308,14 +309,12 @@
         </div>
       {/if}
     </div>
+  </div>
 
-    <div class="text-muted-foreground mt-8 text-xs tabular-nums">
-      <!-- Debug info -->
-      <div class="text-muted-foreground mt-4 flex flex-col gap-1 text-xs">
-        <p>debug: {debugInfo}</p>
-        <p>motion: {motionSupported ? 'supported' : 'not supported'}</p>
-        <p>permission: {permissionStatus}</p>
-      </div>
+  <div class="text-muted-foreground mt-8 w-full px-6 text-sm tabular-nums">
+    <div class="flex justify-between gap-2">
+      <InfoModal />
+      <p><a class="underline" href="https://github.com/womogenes/phone-shaker">source</a></p>
     </div>
   </div>
 </div>

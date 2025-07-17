@@ -42,7 +42,7 @@
       <Dialog.Title class="mb-4">settings</Dialog.Title>
 
       <div class="text-muted-foreground flex flex-col gap-4 text-sm">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-4">
           <div class="flex items-center gap-2">
             {#if $soundEnabled}
               <Volume2 size={16} />
@@ -53,7 +53,7 @@
           </div>
           <Switch bind:checked={soundToggle} />
         </div>
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-4">
           <div class="flex items-center gap-2">
             {#if $hapticEnabled}
               <Vibrate size={16} />
@@ -64,9 +64,16 @@
           </div>
           <Switch bind:checked={hapticToggle} />
         </div>
+        <Button
+          variant="outline"
+          onclick={() => {
+            localStorage.clear();
+            window.location.reload();
+          }}>reset local data</Button
+        >
       </div>
 
-      <Dialog.Footer>
+      <Dialog.Footer class="flex justify-end">
         <Dialog.Close class={buttonVariants()} onclick={() => (open = false)}>close</Dialog.Close>
       </Dialog.Footer>
     </Dialog.Header>
