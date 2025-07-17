@@ -17,10 +17,12 @@ export function createGameManager() {
   let highScore = 0;
   let timerInterval = null;
 
-  // Load high score from localStorage
-  const savedHighScore = localStorage.getItem(HIGH_SCORE_KEY);
-  if (savedHighScore) {
-    highScore = parseInt(savedHighScore, 10);
+  // Load high score from localStorage (browser only)
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const savedHighScore = localStorage.getItem(HIGH_SCORE_KEY);
+    if (savedHighScore) {
+      highScore = parseInt(savedHighScore, 10);
+    }
   }
 
   return {
@@ -128,7 +130,10 @@ export function createGameManager() {
       const isNewHighScore = currentScore > highScore;
       if (isNewHighScore) {
         highScore = currentScore;
-        localStorage.setItem(HIGH_SCORE_KEY, highScore.toString());
+        // Save to localStorage (browser only)
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem(HIGH_SCORE_KEY, highScore.toString());
+        }
       }
 
       if (onGameEnd) {

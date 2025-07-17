@@ -3,35 +3,35 @@
   import * as Dialog from '$lib/components/ui/dialog';
 
   // Import modular components
-  import { 
-    initializeAudioContext, 
-    playGameEndSound, 
-    playShakeSound, 
-    initAudioFromUserGesture 
+  import {
+    initializeAudioContext,
+    playGameEndSound,
+    playShakeSound,
+    initAudioFromUserGesture,
   } from '$lib/audio.js';
-  
-  import { 
-    createShakeDetector, 
+
+  import {
+    createShakeDetector,
     calculateAccelerationMagnitude,
-    isValidAcceleration
+    isValidAcceleration,
   } from '$lib/physics.js';
-  
-  import { 
-    isMotionSupported, 
-    isPermissionRequired, 
-    requestMotionPermission, 
+
+  import {
+    isMotionSupported,
+    isPermissionRequired,
+    requestMotionPermission,
     getPermissionStatus,
     createMotionDetector,
-    extractAcceleration
+    extractAcceleration,
   } from '$lib/motion.js';
-  
+
   import { createGameManager } from '$lib/game.js';
   import { switchToDarkMode, switchToLightMode } from '$lib/theme.js';
   import { triggerShakeFeedback, triggerGameEndFeedback } from '$lib/haptic.js';
 
-  // Initialize game systems
-  const gameManager = createGameManager();
-  const shakeDetector = createShakeDetector();
+  // Initialize game systems (browser only)
+  let gameManager = null;
+  let shakeDetector = null;
   let motionDetector = null;
 
   // UI state
@@ -44,26 +44,32 @@
   let permissionStatus = $state('');
   let acceleration = $state({ x: 0, y: 0, z: 0 });
 
-  // Reactive game state
-  $: gameState = gameManager.getGameState();
-  $: shakeCount = gameManager.getShakeCount();
-  $: timeLeft = gameManager.getTimeLeft();
-  $: highScore = gameManager.getHighScore();
-  $: currentScore = gameManager.getCurrentScore();
-  $: shakeState = shakeDetector.getState();
+  // Reactive game state (with browser checks)
+  const gameState = $derived(gameManager ? gameManager.getGameState() : 'idle');
+  const shakeCount = $derived(gameManager ? gameManager.getShakeCount() : 0);
+  const timeLeft = $derived(gameManager ? gameManager.getTimeLeft() : 10);
+  const highScore = $derived(gameManager ? gameManager.getHighScore() : 0);
+  const currentScore = $derived(gameManager ? gameManager.getCurrentScore() : 0);
+  const shakeState = $derived(shakeDetector ? shakeDetector.getState() : 'idle');
 
   onMount(() => {
+    // Initialize game systems in browser
+    gameManager = createGameManager();
+    shakeDetector = createShakeDetector();
+
     // Initialize audio system
     initializeAudioContext();
-    
+
     // Check motion support
     checkMotionSupport();
   });
 
   onDestroy(() => {
     // Clean up game resources
-    gameManager.cleanup();
-    
+    if (gameManager) {
+      gameManager.cleanup();
+    }
+
     if (motionDetector) {
       motionDetector.cleanup();
     }
@@ -91,7 +97,7 @@
 
   function setupMotionDetection() {
     debugInfo = 'Setting up motion detection...';
-    
+
     motionDetector = createMotionDetector(handleMotion, showError);
     motionDetector.setup();
   }
@@ -100,7 +106,7 @@
     if (!gameManager.isPlaying()) return;
 
     const accelerationData = extractAcceleration(event);
-    
+
     if (!isValidAcceleration(accelerationData)) {
       debugInfo = 'No acceleration data available';
       return;
@@ -118,7 +124,7 @@
     if (shakeDetected) {
       // Increment shake count
       gameManager.incrementShakeCount();
-      
+
       // Trigger all feedback
       triggerShakeFeedback(phoneElement, animationElement);
       playShakeSound();
@@ -137,7 +143,7 @@
         debugInfo = 'Requesting motion permission...';
         const response = await requestMotionPermission();
         permissionStatus = response;
-        
+
         if (response === 'granted') {
           setupMotionDetection();
         } else {
@@ -165,7 +171,7 @@
       (results) => {
         // Game end callback
         endGameHandler(results);
-      }
+      },
     );
   }
 
@@ -201,7 +207,7 @@
       try {
         const response = await requestMotionPermission();
         permissionStatus = response;
-        
+
         if (response === 'granted') {
           setupMotionDetection();
         }
@@ -214,8 +220,8 @@
   }
 </script>
 
-<div class="flex items-center justify-center p-4">
-  <div class="mx-auto w-full max-w-lg p-4 text-center">
+<div class="flex items-center justify-center">
+  <div class="mx-auto w-full max-w-lg px-6 pt-12 pb-4 text-center">
     <div class="mb-8">
       <h1 class="text-foreground mb-2 text-3xl font-bold">Phone Shaker</h1>
       <p class="text-muted-foreground">Shake your phone as fast as you can in 10 seconds</p>
