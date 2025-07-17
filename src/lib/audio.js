@@ -63,7 +63,7 @@ function createGameEndSound() {
 }
 
 /**
- * Create the shake sound effect (bright metal ding)
+ * Create the shake sound effect (short metronome click)
  */
 function createShakeSound() {
   if (!audioContext) return;
@@ -80,17 +80,17 @@ function createShakeSound() {
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      // Bright metal ding: high frequency with quick attack/decay
-      oscillator.frequency.setValueAtTime(1760, audioContext.currentTime); // A6 (high pitched)
-      oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.05); // Drop to A5
+      // Short metronome click: brief, sharp, percussive
+      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime); // Clean 1kHz tone
+      oscillator.type = 'square'; // Square wave for sharper click
 
-      // Sharp attack, quick decay for metallic ding
+      // Very short, sharp attack and immediate decay
       gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.01); // Quick attack
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1); // Quick decay
+      gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.005); // Instant attack
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.03); // Quick decay
 
       oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.1);
+      oscillator.stop(audioContext.currentTime + 0.03); // Very short duration
     } catch (error) {
       console.log('Shake sound playback error:', error);
     }

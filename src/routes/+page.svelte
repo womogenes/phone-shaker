@@ -80,7 +80,7 @@
     debugInfo = 'Checking motion support...';
 
     if (!isMotionSupported()) {
-      showError('DeviceMotion not supported on this device/browser');
+      showError('DeviceMotion not supported on this device');
       return;
     }
 
@@ -231,7 +231,7 @@
   function showError(message) {
     errorMessage = message;
     showErrorModal = true;
-    debugInfo = `Error: ${message}`;
+    debugInfo = `error: ${message}`;
   }
 
   async function retryPermission() {
@@ -313,31 +313,18 @@
   </div>
 </div>
 
-<!-- Error Modal -->
-<Dialog.Root bind:open={showErrorModal}>
-  <Dialog.Content class="sm:max-w-md">
+<Dialog.Root open={showErrorModal}>
+  <Dialog.Content>
     <Dialog.Header>
-      <Dialog.Title>motion detection error</Dialog.Title>
+      <Dialog.Title>device motion API not supported</Dialog.Title>
       <Dialog.Description>
-        {errorMessage}
+        your device may not support the motion APIs required to run this experiment. for best
+        results, open this site on a modern mobile device.
       </Dialog.Description>
+      <Dialog.Footer>
+        <Button variant="secondary" onclick={retryPermission}>retry</Button>
+        <Button onclick={() => (showErrorModal = false)}>close</Button>
+      </Dialog.Footer>
     </Dialog.Header>
-    <Dialog.Footer class="flex flex-col gap-2 sm:flex-row sm:justify-end sm:space-x-2">
-      <button
-        onclick={retryPermission}
-        class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 transition-colors"
-      >
-        RETRY
-      </button>
-      <Dialog.Close asChild let:builder>
-        <button
-          use:builder.action
-          {...builder}
-          class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 transition-colors"
-        >
-          CLOSE
-        </button>
-      </Dialog.Close>
-    </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

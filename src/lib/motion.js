@@ -2,11 +2,14 @@
  * Simple device motion detection
  */
 
+import { mobileCheck } from '$lib/utils.js';
+
 /**
  * Check if device motion is supported
  * @returns {boolean} True if DeviceMotionEvent is supported
  */
 export function isMotionSupported() {
+  if (!mobileCheck()) return false;
   return typeof DeviceMotionEvent !== 'undefined';
 }
 
