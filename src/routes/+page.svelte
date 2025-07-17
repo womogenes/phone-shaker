@@ -311,7 +311,7 @@
     </div>
   </div>
 
-  <div class="text-muted-foreground mt-8 w-full px-6 text-sm tabular-nums">
+  <div class="text-muted-foreground mt-8 w-full max-w-md px-6 text-sm tabular-nums">
     <div class="flex justify-between gap-2">
       <InfoModal />
       <p><a class="underline" href="https://github.com/womogenes/phone-shaker">source</a></p>
@@ -322,7 +322,7 @@
 <Dialog.Root open={showErrorModal}>
   <Dialog.Content>
     <Dialog.Header>
-      <Dialog.Title>device motion API not supported</Dialog.Title>
+      <Dialog.Title>device motion API unsupported</Dialog.Title>
       <Dialog.Description>
         your device may not support the motion APIs required to run this experiment. for best
         results, open this site on a modern mobile device.
