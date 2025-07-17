@@ -21,37 +21,43 @@ project goals:
 The DeviceMotionEvent API requires HTTPS. To set up SSL certificates for local development:
 
 ## Quick Setup
+
 ```bash
 ./setup-ssl.sh
 ```
 
 ## Manual Setup
+
 1. **Option 1: mkcert (recommended)**
+
    ```bash
    # Install mkcert
    sudo pacman -S mkcert  # or brew install mkcert
-   
+
    # Install local CA and generate certificates
    mkcert -install
    mkcert localhost 127.0.0.1 ::1
    ```
 
 2. **Option 2: OpenSSL**
+
    ```bash
    # Generate private key
    openssl genrsa -out localhost-key.pem 2048
-   
+
    # Generate certificate (using provided config)
    openssl req -new -x509 -key localhost-key.pem -out localhost.pem -days 365 -config localhost.conf -extensions v3_req
    ```
 
 ## Usage
+
 - Development server runs on `https://localhost:5175/`
 - For mobile testing: `https://YOUR_IP:5175/`
 - Accept certificate warnings in browser
 - Motion API will now work properly
 
 ## Motion Permission Requirements
+
 - Some browsers (Safari/WebKit) require motion permission requests from user gestures
 - The app will show "Allow Motion & Start" button when permission is needed
 - Permission is requested when user clicks the start button
@@ -63,6 +69,7 @@ The DeviceMotionEvent API requires HTTPS. To set up SSL certificates for local d
 This project uses semantic colors defined in `src/app.css` instead of hardcoded Tailwind colors. This provides:
 
 ## Semantic Color Tokens
+
 - `background` - Main background color
 - `foreground` - Primary text color
 - `card` - Card/container background
@@ -78,12 +85,14 @@ This project uses semantic colors defined in `src/app.css` instead of hardcoded 
 - `destructive` - Error/danger color
 
 ## Usage Guidelines
+
 - **Always use semantic colors**: `bg-primary` not `bg-black`
 - **Text hierarchy**: `text-foreground` for primary, `text-muted-foreground` for secondary
 - **Consistent theming**: Colors automatically support light/dark mode
 - **Hover states**: Use opacity modifiers like `hover:bg-primary/80`
 
 ## Benefits
+
 - Automatic dark mode support
 - Consistent color palette
 - Easy theme customization
@@ -93,22 +102,26 @@ This project uses semantic colors defined in `src/app.css` instead of hardcoded 
 # Game Features
 
 ## Theme Switching
+
 - **Light Mode**: Default state for menu and results
 - **Dark Mode**: Automatically switches during gameplay (10-second timer)
 - **Dynamic switching**: `document.documentElement.classList.add/remove('dark')`
 
 ## Audio System
+
 - **Web Audio API**: Generates sounds programmatically (no external files needed)
 - **Game End Sound**: Pleasant 3-note chord progression (C-E-G)
 - **Error Handling**: Graceful degradation if audio unavailable
 
 ## Haptic Feedback
+
 - **Shake Detection**: Subtle vibration (50ms) for each shake
 - **Game End**: Pattern vibration (100ms, 50ms, 100ms, 50ms, 200ms)
 - **Browser Support**: Uses `navigator.vibrate()` where available
 - **Graceful Degradation**: No errors if vibration unsupported
 
 ## Implementation Details
+
 - All features work without external dependencies
 - Proper browser compatibility checks
 - No network requests for audio/haptic features
@@ -117,37 +130,47 @@ This project uses semantic colors defined in `src/app.css` instead of hardcoded 
 # Physics-Based Shake Detection
 
 ## The Problem with Simple Threshold Detection
+
 Previous approach: `if (acceleration_change > threshold) count++`
+
 - Counted ~60 times per second during motion
 - One physical shake = 10+ counted "shakes"
 - Not physically meaningful
 
 ## Physics-Correct Solution
+
 ### What is a "Shake" in Physics?
+
 A shake is a **complete oscillation cycle**:
+
 - **1D Example**: Position 0 → left → 0 → right → 0
 - **3D Reality**: Discrete back-and-forth motions in any direction
 - **Key Insight**: One shake = high acceleration → low acceleration (complete cycle)
 
 ### State Machine Implementation
+
 **States:**
+
 1. `idle` - Waiting for shake to start (low acceleration)
-2. `shaking` - High acceleration detected, shake in progress  
+2. `shaking` - High acceleration detected, shake in progress
 3. `cooldown` - Brief period to prevent double-counting
 
 **Physics Calculations:**
+
 - **Acceleration Magnitude**: `|a| = √(ax² + ay² + az²)`
 - **Shake Start**: Magnitude > 15 (tuned threshold)
 - **Shake End**: Magnitude < 8 for sustained period
 - **Validation**: Minimum duration (100ms) and cooldown (200ms)
 
 ### Key Parameters
+
 - `SHAKE_THRESHOLD = 15` - Minimum acceleration to start shake
-- `SHAKE_END_THRESHOLD = 8` - Acceleration below this ends shake  
+- `SHAKE_END_THRESHOLD = 8` - Acceleration below this ends shake
 - `MIN_SHAKE_DURATION = 100ms` - Filters out noise/vibrations
 - `SHAKE_COOLDOWN = 200ms` - Prevents double-counting rapid motions
 
 ### Result
+
 - **Realistic counting**: One physical shake = one counted shake
 - **Noise filtering**: Ignores device vibrations and small movements
 - **Consistent**: Works across different shaking styles and orientations

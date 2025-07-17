@@ -43,12 +43,12 @@ export async function requestMotionPermission() {
  * Get the current permission status
  * @returns {string} Permission status description
  */
-export function getPermissionStatus() {
+export async function getPermissionStatus() {
   if (!isMotionSupported()) {
     return 'not-supported';
   }
 
-  if (isPermissionRequired()) {
+  if (isPermissionRequired() && !requestMotionPermission()) {
     return 'needs-user-gesture';
   }
 

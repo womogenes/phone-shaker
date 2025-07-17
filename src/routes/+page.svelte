@@ -71,7 +71,7 @@
     }
   });
 
-  function checkMotionSupport() {
+  async function checkMotionSupport() {
     debugInfo = 'Checking motion support...';
 
     if (!isMotionSupported()) {
@@ -80,7 +80,7 @@
     }
 
     motionSupported = true;
-    permissionStatus = getPermissionStatus();
+    permissionStatus = await getPermissionStatus();
 
     if (permissionStatus === 'not-required') {
       debugInfo = 'No permission required, setting up motion detection...';

@@ -36,7 +36,7 @@ export function createGameManager() {
         shakeCount,
         timeLeft,
         currentScore,
-        highScore
+        highScore,
       };
     },
 
@@ -102,11 +102,11 @@ export function createGameManager() {
 
       timerInterval = setInterval(() => {
         timeLeft--;
-        
+
         if (onTick) {
           onTick(timeLeft);
         }
-        
+
         if (timeLeft <= 0) {
           this.endGame(onGameEnd);
         }
@@ -120,7 +120,7 @@ export function createGameManager() {
     endGame(onGameEnd) {
       gameState = 'finished';
       currentScore = shakeCount;
-      
+
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -140,7 +140,7 @@ export function createGameManager() {
         onGameEnd({
           score: currentScore,
           highScore,
-          isNewHighScore
+          isNewHighScore,
         });
       }
     },
@@ -153,7 +153,7 @@ export function createGameManager() {
       shakeCount = 0;
       timeLeft = 10;
       currentScore = 0;
-      
+
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -192,6 +192,6 @@ export function createGameManager() {
         clearInterval(timerInterval);
         timerInterval = null;
       }
-    }
+    },
   };
 }
