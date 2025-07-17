@@ -26,9 +26,10 @@
   import Button, { buttonVariants } from '@/components/ui/button/button.svelte';
 
   // Icons
-  import { InfoIcon } from '@lucide/svelte';
+  import { InfoIcon, TrophyIcon, SettingsIcon } from '@lucide/svelte';
   import SettingsModal from '$lib/components/settings-modal.svelte';
   import InfoModal from '$lib/components/info-modal.svelte';
+  import LeaderboardModal from '$lib/components/leaderboard-modal.svelte';
 
   // Game state (pure Svelte 5 reactive state)
   let gameState = $state('idle'); // 'idle', 'playing', 'finished'
@@ -48,6 +49,7 @@
   let accelerationHistory = $state([]);
   let startTime = $state(0);
   let showSettingsModal = $state(false);
+  let showLeaderboardModal = $state(false);
 
   // Game systems
   let motionDetector = null;
@@ -284,7 +286,26 @@
           time: <span class="text-foreground">{timeLeft}s</span>
         </div>
 
-        <SettingsModal open={showSettingsModal} />
+        <div class="flex items-center">
+          <Button
+            onclick={() => (showLeaderboardModal = true)}
+            class="relative -top-2 -right-2"
+            size="icon"
+            variant="ghost"
+            aria-label="View leaderboard"
+          >
+            <TrophyIcon class="h-5 w-5" />
+          </Button>
+          <Button
+            onclick={() => (showSettingsModal = true)}
+            class="relative -top-2 -right-2"
+            size="icon"
+            variant="ghost"
+            aria-label="Settings"
+          >
+            <SettingsIcon class="h-5 w-5" />
+          </Button>
+        </div>
       </div>
 
       <div class="flex flex-col items-center">
@@ -309,6 +330,15 @@
           <div class="text-sm"><b>game over</b> (you shook {currentScore} times)</div>
           {#if currentScore >= highScore}
             <div class="font-semibold">new high score!</div>
+            <Button
+              onclick={() => (showLeaderboardModal = true)}
+              variant="outline"
+              size="sm"
+              class="mt-2"
+            >
+              <TrophyIcon class="mr-2 h-4 w-4" />
+              View Leaderboard
+            </Button>
           {/if}
         </div>
       {/if}
@@ -327,7 +357,7 @@
   </div>
 </div>
 
-<Dialog.Root open={showErrorModal} onOpenChange={(open) => showErrorModal = open}>
+<Dialog.Root open={showErrorModal} onOpenChange={(open) => (showErrorModal = open)}>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title class="mb-4">device motion API unsupported</Dialog.Title>
@@ -346,3 +376,13 @@
     </Dialog.Header>
   </Dialog.Content>
 </Dialog.Root>
+
+<!-- Settings Modal -->
+<SettingsModal bind:open={showSettingsModal} />
+
+<!-- Leaderboard Modal -->
+<LeaderboardModal
+  bind:open={showLeaderboardModal}
+  {currentScore}
+  isNewHighScore={currentScore >= highScore && gameState === 'finished'}
+/>

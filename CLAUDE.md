@@ -176,6 +176,47 @@ A shake is a **complete oscillation cycle**:
 - **Consistent**: Works across different shaking styles and orientations
 - **Physics-accurate**: Based on actual motion physics principles
 
+# Backend API Structure
+
+## API Endpoints
+
+### `/api/shake-data` (POST)
+- **Purpose**: Submit raw acceleration data for analytics
+- **Data**: Array of `[timestamp, x, y, z]` acceleration readings
+- **Response**: `{ status: 200 }`
+- **Database**: Stores in `shake-data` table with `client_ip`
+
+### `/api/leaderboard` (GET/POST)
+- **GET**: Retrieve top 50 scores from global leaderboard
+- **POST**: Submit new high score with player name
+- **Data Structure**: `{ score: number, playerName: string }`
+- **Response**: `{ success: boolean, topScores?: array, error?: string }`
+- **Database**: Stores in `leaderboard` table with validation
+
+## Database Schema
+
+### Required Supabase Tables
+
+1. **`shake-data`** (existing)
+   - `shake_data`: JSONB - Raw acceleration data
+   - `client_ip`: TEXT - Client IP address
+   - `created_at`: TIMESTAMP
+
+2. **`leaderboard`** (new - needs creation)
+   - `id`: UUID PRIMARY KEY
+   - `score`: INTEGER NOT NULL
+   - `player_name`: TEXT NOT NULL (max 20 chars)
+   - `client_ip`: TEXT
+   - `created_at`: TIMESTAMP DEFAULT NOW()
+   - Indexes: `score DESC`, `created_at DESC`
+
+## Authentication & Security
+
+- Uses Supabase service role key for server-side operations
+- IP address tracking for analytics and abuse prevention
+- Input validation on score submission
+- Rate limiting handled by Supabase
+
 # Current Architecture
 
 ## Core Libraries (`src/lib/`)
@@ -248,8 +289,8 @@ A shake is a **complete oscillation cycle**:
 
 - **SvelteKit 2.22** - Full-stack framework
 - **Svelte 5** - Component framework with runes
-- **TypeScript 5** - Type safety
 - **Vite 7** - Build tool
+- **@lucide/svelte** - Icon framework, use `@lucide/svelte` instead of `lucide-svelte`
 
 ### Styling
 
