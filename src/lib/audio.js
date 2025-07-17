@@ -145,8 +145,8 @@ export async function initAudioFromUserGesture() {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.01);
 
-    console.log('Audio context initialized');
+    console.debug('Audio context initialized');
   } catch (error) {
-    console.log('Audio initialization error:', error);
+    console.error('Audio initialization error:', error);
   }
 }

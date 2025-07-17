@@ -1,17 +1,16 @@
 /*
-  Shake is detected as crossing high threshold then dipping
-  below low threshold (hysteresis)
+  Shake is detected as a peak higher than low threshold
+  Peak means low -> high -> low
 */
 
-export const SHAKE_HIGH_THRESH = 40;
-export const SHAKE_LOW_THRESH = 35;
+export const SHAKE_LOW_THRESH = 15;
 
 /**
  * Create a simplified shake detector
  * @returns {Object} Shake detector with detectShake method and state
  */
 export function createShakeDetector() {
-  let crossedHighThresh = false;
+  let magHistory = [];
 
   return {
     /**
@@ -23,23 +22,25 @@ export function createShakeDetector() {
     detectShake(accelerationData, currentTime) {
       const magnitude = calculateAccelerationMagnitude(accelerationData);
 
-      // Downward pass: crossed low threshold, count shake
-      if (magnitude <= SHAKE_LOW_THRESH && crossedHighThresh) {
-        crossedHighThresh = false;
-        return { motionMagnitude };
+      let shakeResult = null;
+
+      magHistory.push(magnitude);
+      let n = magHistory.length;
+      if (
+        n >= 3 &&
+        magHistory[n - 1] > magHistory[n - 2] &&
+        magHistory[n - 3] > magHistory[n - 2] &&
+        magnitude >= SHAKE_LOW_THRESH
+      ) {
+        shakeResult = { magnitude };
       }
 
-      // Upward pass: crossed high threshold
-      if (magnitude >= SHAKE_HIGH_THRESH) {
-        crossedHighThresh = true;
-      }
-
-      return null;
+      return shakeResult;
     },
 
     // Reset: no cross high
     reset() {
-      crossedHighThresh = false;
+      magHistory = [];
     },
 
     /**

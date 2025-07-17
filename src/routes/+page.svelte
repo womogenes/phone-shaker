@@ -217,7 +217,7 @@
     // Reset all state
     gameState = 'idle';
     shakeCount = 0;
-    timeLeft = 2;
+    timeLeft = 10;
     currentScore = 0;
     if (shakeDetector) {
       shakeDetector.reset();
@@ -292,13 +292,13 @@
           <div class="text-muted-foreground text-sm">keep shaking your phone</div>
         </div>
       {:else if gameState === 'finished'}
+        <Button onclick={resetGame} size="xl">PLAY AGAIN</Button>
         <div>
           <div class="text-sm"><b>game over</b> (you shook {currentScore} times)</div>
           {#if currentScore > highScore}
             <div class="text-foreground font-semibold">new high score!</div>
           {/if}
         </div>
-        <Button onclick={resetGame} size="xl">PLAY AGAIN</Button>
       {/if}
     </div>
 
