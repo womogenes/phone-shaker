@@ -11,7 +11,6 @@
   } from '$lib/audio.js';
 
   import {
-    createShakeDetector,
     calculateAccelerationMagnitude,
     isValidAcceleration,
   } from '$lib/physics.js';
@@ -24,16 +23,21 @@
     createMotionDetector,
     extractAcceleration,
   } from '$lib/motion.js';
-
-  import { createGameManager } from '$lib/game.js';
   import { switchToDarkMode, switchToLightMode } from '$lib/theme.js';
   import { triggerShakeFeedback, triggerGameEndFeedback } from '$lib/haptic.js';
 
-  // Initialize game systems (browser only)
-  let gameManager = null;
-  let shakeDetector = null;
-  let motionDetector = null;
-
+  // Game state (pure Svelte 5 reactive state)
+  let gameState = $state('idle'); // 'idle', 'playing', 'finished'
+  let shakeCount = $state(0);
+  let timeLeft = $state(10);
+  let currentScore = $state(0);
+  let highScore = $state(0);
+  
+  // Shake detection state
+  let shakeState = $state('idle'); // 'idle', 'shaking', 'cooldown'
+  let lastShakeTime = $state(0);
+  let shakeStartTime = $state(0);
+  
   // UI state
   let phoneElement = $state();
   let animationElement = $state();
@@ -43,20 +47,18 @@
   let motionSupported = $state(false);
   let permissionStatus = $state('');
   let acceleration = $state({ x: 0, y: 0, z: 0 });
-
-  // Reactive game state (with browser checks)
-  const gameState = $derived(gameManager ? gameManager.getGameState() : 'idle');
-  const shakeCount = $derived(gameManager ? gameManager.getShakeCount() : 0);
-  const timeLeft = $derived(gameManager ? gameManager.getTimeLeft() : 10);
-  const highScore = $derived(gameManager ? gameManager.getHighScore() : 0);
-  const currentScore = $derived(gameManager ? gameManager.getCurrentScore() : 0);
-  const shakeState = $derived(shakeDetector ? shakeDetector.getState() : 'idle');
+  
+  // Game systems
+  let motionDetector = null;
+  let timerInterval = null;
 
   onMount(() => {
-    // Initialize game systems in browser
-    gameManager = createGameManager();
-    shakeDetector = createShakeDetector();
-
+    // Load high score from localStorage
+    const savedHighScore = localStorage.getItem('phoneShaker-highScore');
+    if (savedHighScore) {
+      highScore = parseInt(savedHighScore, 10);
+    }
+    
     // Initialize audio system
     initializeAudioContext();
 
@@ -65,9 +67,9 @@
   });
 
   onDestroy(() => {
-    // Clean up game resources
-    if (gameManager) {
-      gameManager.cleanup();
+    // Clean up timers
+    if (timerInterval) {
+      clearInterval(timerInterval);
     }
 
     if (motionDetector) {
@@ -103,7 +105,7 @@
   }
 
   function handleMotion(event) {
-    if (!gameManager.isPlaying()) return;
+    if (gameState !== 'playing') return;
 
     const accelerationData = extractAcceleration(event);
 
@@ -115,21 +117,36 @@
     const currentTime = Date.now();
     acceleration = accelerationData;
 
-    // Calculate acceleration magnitude
+    // Calculate acceleration magnitude: |a| = √(ax² + ay² + az²)
     const magnitude = calculateAccelerationMagnitude(accelerationData);
 
-    // Detect shake using physics module
-    const shakeDetected = shakeDetector.detectShake(magnitude, currentTime);
+    // Physics-based shake detection state machine
+    const SHAKE_THRESHOLD = 15;
+    const SHAKE_END_THRESHOLD = 8;
+    const MIN_SHAKE_DURATION = 100;
+    const SHAKE_COOLDOWN = 200;
 
-    if (shakeDetected) {
-      // Increment shake count
-      gameManager.incrementShakeCount();
+    if (shakeState === 'idle' && magnitude > SHAKE_THRESHOLD) {
+      shakeState = 'shaking';
+      shakeStartTime = currentTime;
+    } else if (shakeState === 'shaking' && magnitude < SHAKE_END_THRESHOLD) {
+      const shakeDuration = currentTime - shakeStartTime;
+      if (shakeDuration >= MIN_SHAKE_DURATION) {
+        // Valid shake detected
+        shakeCount++;
+        shakeState = 'cooldown';
+        lastShakeTime = currentTime;
 
-      // Trigger all feedback
-      triggerShakeFeedback(phoneElement, animationElement);
-      playShakeSound();
+        // Trigger all feedback
+        triggerShakeFeedback(phoneElement, animationElement);
+        playShakeSound();
 
-      debugInfo = `Shake detected! Total: ${gameManager.getShakeCount()}`;
+        debugInfo = `Shake detected! Total: ${shakeCount}`;
+      } else {
+        shakeState = 'idle';
+      }
+    } else if (shakeState === 'cooldown' && currentTime - lastShakeTime > SHAKE_COOLDOWN) {
+      shakeState = 'idle';
     }
   }
 
@@ -159,23 +176,45 @@
     // Switch to dark mode
     switchToDarkMode();
 
+    // Reset game state
+    gameState = 'playing';
+    shakeCount = 0;
+    timeLeft = 10;
+    currentScore = 0;
+    
     // Reset shake detection
-    shakeDetector.reset();
+    shakeState = 'idle';
+    lastShakeTime = 0;
+    shakeStartTime = 0;
 
-    // Start the game
-    gameManager.startGame(
-      (timeRemaining) => {
-        // Timer tick callback
-        debugInfo = `Game in progress: ${timeRemaining}s remaining`;
-      },
-      (results) => {
-        // Game end callback
-        endGameHandler(results);
-      },
-    );
+    // Start game timer
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      debugInfo = `Game in progress: ${timeLeft}s remaining`;
+      
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
   }
 
-  function endGameHandler(results) {
+  function endGame() {
+    // Stop timer
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    
+    gameState = 'finished';
+    currentScore = shakeCount;
+    
+    // Check for new high score
+    const isNewHighScore = currentScore > highScore;
+    if (isNewHighScore) {
+      highScore = currentScore;
+      localStorage.setItem('phoneShaker-highScore', highScore.toString());
+    }
+
     // Switch back to light mode
     switchToLightMode();
 
@@ -183,13 +222,26 @@
     playGameEndSound();
     triggerGameEndFeedback();
 
-    debugInfo = `Game ended! Score: ${results.score}${results.isNewHighScore ? ' (New High Score!)' : ''}`;
+    debugInfo = `Game ended! Score: ${currentScore}${isNewHighScore ? ' (New High Score!)' : ''}`;
   }
 
   function resetGame() {
-    gameManager.resetGame();
-    shakeDetector.reset();
+    // Stop timer if running
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    
+    // Reset all state
+    gameState = 'idle';
+    shakeCount = 0;
+    timeLeft = 10;
+    currentScore = 0;
+    shakeState = 'idle';
+    lastShakeTime = 0;
+    shakeStartTime = 0;
     acceleration = { x: 0, y: 0, z: 0 };
+    
     switchToLightMode();
     debugInfo = 'Game reset';
   }
@@ -244,7 +296,9 @@
         <div bind:this={animationElement} class="text-4xl">📱</div>
       </div>
 
-      <div class="text-foreground mb-2 font-mono text-5xl font-bold">{shakeCount}</div>
+      <div class="text-foreground mb-2 font-mono text-5xl font-bold">
+        {shakeCount}
+      </div>
       <div class="text-muted-foreground text-sm">shakes</div>
     </div>
 
