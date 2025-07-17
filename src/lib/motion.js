@@ -51,7 +51,7 @@ export async function getPermissionStatus() {
     return 'not-supported';
   }
 
-  if (isPermissionRequired() && !requestMotionPermission()) {
+  if (isPermissionRequired()) {
     return 'needs-user-gesture';
   }
 

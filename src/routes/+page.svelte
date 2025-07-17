@@ -164,6 +164,12 @@
       }
     }
 
+    // Ensure motion detection is set up
+    if (!motionDetector) {
+      showError('Motion detection not properly initialized');
+      return;
+    }
+
     // Reset game state
     resetGame();
 
