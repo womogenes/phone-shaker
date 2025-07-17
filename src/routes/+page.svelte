@@ -142,8 +142,6 @@
   }
 
   async function startGame() {
-    await DeviceMotionEvent?.requestPermission();
-
     // Initialize audio from user gesture (iOS requirement)
     await initAudioFromUserGesture();
 
