@@ -1,26 +1,26 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
   import * as Dialog from '$lib/components/ui/dialog';
-
+  import { onDestroy, onMount } from 'svelte';
   // Import modular components
   import {
+    initAudioFromUserGesture,
     initializeAudioContext,
     playGameEndSound,
     playShakeSound,
-    initAudioFromUserGesture,
   } from '$lib/audio.js';
 
   import { createShakeDetector, isValidAcceleration } from '$lib/physics.js';
 
+  import { triggerGameEndFeedback, triggerShakeFeedback } from '$lib/haptic.js';
   import {
+    createMotionDetector,
+    getPermissionStatus,
     isMotionSupported,
     isPermissionRequired,
     requestMotionPermission,
-    getPermissionStatus,
-    createMotionDetector,
   } from '$lib/motion.js';
   import { switchToDarkMode, switchToLightMode } from '$lib/theme.js';
-  import { triggerShakeFeedback, triggerGameEndFeedback } from '$lib/haptic.js';
+  import Button from '@/components/ui/button/button.svelte';
 
   // Game state (pure Svelte 5 reactive state)
   let gameState = $state('idle'); // 'idle', 'playing', 'finished'
@@ -251,17 +251,17 @@
   <div class="mx-auto w-full max-w-md px-6 pt-10 pb-4">
     <div class="mb-8">
       <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
-        HOW FAST CAN YOU SHAKE YOUR PHONE?
+        how fast can you shake your phone?
       </h1>
     </div>
 
     <div class="mb-8">
       <div class="mb-6 flex items-center justify-between">
         <div class="text-muted-foreground text-sm">
-          High score: <span class="text-foreground font-mono">{highScore}</span>
+          high score: <span class="text-foreground font-mono">{highScore}</span>
         </div>
         <div class="text-muted-foreground text-sm">
-          Time: <span class="text-foreground font-mono">{timeLeft}s</span>
+          time: <span class="text-foreground font-mono">{timeLeft}s</span>
         </div>
       </div>
 
@@ -273,40 +273,32 @@
       </div>
     </div>
 
-    <div class="space-y-4">
+    <div class="flex h-10 flex-col space-y-4">
       {#if gameState === 'idle'}
-        <button
-          onclick={startGame}
-          class="bg-primary text-primary-foreground hover:bg-primary/80 w-full px-6 py-3 font-semibold transition-colors duration-200"
-        >
+        <Button onclick={startGame} class="h-full">
           {#if permissionStatus === 'needs-user-gesture'}
             START
           {:else}
             START SHAKING
           {/if}
-        </button>
+        </Button>
         {#if permissionStatus === 'needs-user-gesture'}
           <p class="text-muted-foreground mt-2 text-xs">tap the button to enable motion sensors</p>
         {/if}
       {:else if gameState === 'playing'}
-        <div class="border-border bg-muted text-foreground border px-4 py-3">
-          <div class="font-semibold">SHAKE IT LIKE IT'S HOT</div>
+        <div class="flex flex-col items-center">
+          <div class="font-semibold">shake it like it's hot</div>
           <div class="text-muted-foreground text-sm">keep shaking your phone</div>
         </div>
       {:else if gameState === 'finished'}
-        <div class="border-border bg-muted text-foreground mb-4 border px-6 py-3">
-          <div class="font-semibold">Game Over</div>
-          <div class="text-muted-foreground text-sm">you shook {currentScore} times</div>
+        <div class="border-border bg-muted text-foreground mb-4 border px-6 py-3 text-sm">
+          <div class="font-semibold">game over</div>
+          <div class="text-muted-foreground">you shook {currentScore} times</div>
           {#if currentScore === highScore}
-            <div class="text-foreground text-sm font-semibold">new high score!</div>
+            <div class="text-foreground font-semibold">new high score!</div>
           {/if}
         </div>
-        <button
-          onclick={resetGame}
-          class="bg-primary text-primary-foreground hover:bg-primary/80 w-full px-6 py-3 font-semibold transition-colors duration-200"
-        >
-          Play Again
-        </button>
+        <Button onclick={resetGame}>PLAY AGAIN</Button>
       {/if}
     </div>
 
@@ -314,18 +306,8 @@
       <!-- Debug info -->
       <div class="text-muted-foreground mt-4 flex flex-col gap-1 text-xs">
         <p>debug: {debugInfo}</p>
-        <p>motion: {motionSupported ? 'Supported' : 'Not supported'}</p>
+        <p>motion: {motionSupported ? 'supported' : 'not supported'}</p>
         <p>permission: {permissionStatus}</p>
-        {#if gameState === 'playing'}
-          <p>Data: {acceleration.hasGravity ? 'with gravity' : 'gravity-free'}</p>
-          <p>
-            Raw: {Math.sqrt(
-              acceleration.x * acceleration.x +
-                acceleration.y * acceleration.y +
-                acceleration.z * acceleration.z,
-            ).toFixed(1)}
-          </p>
-        {/if}
       </div>
     </div>
   </div>
@@ -335,7 +317,7 @@
 <Dialog.Root bind:open={showErrorModal}>
   <Dialog.Content class="sm:max-w-md">
     <Dialog.Header>
-      <Dialog.Title>Motion Detection Error</Dialog.Title>
+      <Dialog.Title>motion detection error</Dialog.Title>
       <Dialog.Description>
         {errorMessage}
       </Dialog.Description>
@@ -345,7 +327,7 @@
         onclick={retryPermission}
         class="bg-primary text-primary-foreground hover:bg-primary/80 px-4 py-2 transition-colors"
       >
-        Retry
+        RETRY
       </button>
       <Dialog.Close asChild let:builder>
         <button
@@ -353,7 +335,7 @@
           {...builder}
           class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 transition-colors"
         >
-          Close
+          CLOSE
         </button>
       </Dialog.Close>
     </Dialog.Footer>
