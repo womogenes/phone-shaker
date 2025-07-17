@@ -39,6 +39,7 @@
   let permissionStatus = $state('');
   let acceleration = $state({ x: 0, y: 0, z: 0 });
   let accelerationHistory = $state([]);
+  let startTime = $state(0);
 
   // Game systems
   let motionDetector = null;
@@ -111,7 +112,7 @@
       return;
     }
 
-    const currentTime = window.performance.now(); // seconds since page load
+    const currentTime = window.performance.now() - startTime; // seconds since page load
     acceleration = accelerationData;
 
     const { x, y, z } = accelerationData;
@@ -128,7 +129,7 @@
       triggerShakeFeedback();
       playShakeSound();
 
-      debugInfo = `motion: ${shakeResult.motionMagnitude.toFixed(1)} (${shakeResult.sensorType}), total: ${shakeCount}`;
+      debugInfo = `motion: ${shakeResult.motionMagnitude.toFixed(1)} (total: ${shakeCount}`;
     }
   }
 
@@ -167,6 +168,7 @@
     if (shakeDetector) shakeDetector.reset();
 
     // Start game timer
+    startTime = window.performance.now();
     timerInterval = setInterval(() => {
       timeLeft--;
       debugInfo = `game in progress: ${timeLeft}s remaining`;

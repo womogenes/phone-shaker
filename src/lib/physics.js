@@ -1,52 +1,45 @@
-/**
- * Simplified   ke detection for the phone shaker game
- * High acceleration = shake detected
- */
+/*
+  Shake is detected as crossing high threshold then dipping
+  below low threshold (hysteresis)
+*/
 
-// Simplified thresholds
-export const SHAKE_THRESHOLD = 30; // Strong acceleration threshold
-export const SHAKE_COOLDOWN = 50; // ms between shake detections
+export const SHAKE_HIGH_THRESH = 40;
+export const SHAKE_LOW_THRESH = 35;
 
 /**
  * Create a simplified shake detector
  * @returns {Object} Shake detector with detectShake method and state
  */
 export function createShakeDetector() {
-  let lastShakeTime = 0;
+  let crossedHighThresh = false;
 
   return {
     /**
      * Detect shakes using simple magnitude threshold
-     * @param {Object} accelerationData - Acceleration data {x, y, z, hasGravity}
+     * @param {Object} accelerationData - Acceleration data {x, y, z}
      * @param {number} currentTime - Current timestamp
      * @returns {Object|null} Shake result with motion magnitude, or null if no shake
      */
     detectShake(accelerationData, currentTime) {
       const magnitude = calculateAccelerationMagnitude(accelerationData);
 
-      // Remove gravity if present
-      const motionMagnitude = accelerationData.hasGravity ? Math.abs(magnitude - 9.8) : magnitude;
+      // Downward pass: crossed low threshold, count shake
+      if (magnitude <= SHAKE_LOW_THRESH && crossedHighThresh) {
+        crossedHighThresh = false;
+        return { motionMagnitude };
+      }
 
-      // Check if enough time has passed since last shake
-      const enoughTimeSinceLastShake = currentTime - lastShakeTime > SHAKE_COOLDOWN;
-
-      // Detect shake: strong acceleration + cooldown period passed
-      if (motionMagnitude > SHAKE_THRESHOLD && enoughTimeSinceLastShake) {
-        lastShakeTime = currentTime;
-        return {
-          motionMagnitude,
-          sensorType: accelerationData.hasGravity ? 'motion+gravity' : 'motion-only',
-        };
+      // Upward pass: crossed high threshold
+      if (magnitude >= SHAKE_HIGH_THRESH) {
+        crossedHighThresh = true;
       }
 
       return null;
     },
 
-    /**
-     * Reset the shake detector state
-     */
+    // Reset: no cross high
     reset() {
-      lastShakeTime = 0;
+      crossedHighThresh = false;
     },
 
     /**
@@ -55,8 +48,7 @@ export function createShakeDetector() {
      */
     getDebugInfo() {
       return {
-        lastShakeTime,
-        timeSinceLastShake: Date.now() - lastShakeTime,
+        crossedHighThresh,
       };
     },
   };
