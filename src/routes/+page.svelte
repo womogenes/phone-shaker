@@ -142,6 +142,8 @@
   }
 
   async function startGame() {
+    await DeviceMotionEvent?.requestPermission();
+
     // Initialize audio from user gesture (iOS requirement)
     await initAudioFromUserGesture();
 
@@ -149,7 +151,7 @@
     if (permissionStatus === 'needs-user-gesture') {
       try {
         debugInfo = 'requesting motion permission...';
-        const response = await requestMotionPermission();
+        const response = await DeviceMotionEvent?.requestPermission();
         permissionStatus = response;
 
         if (response === 'granted') {
@@ -297,9 +299,6 @@
     <div class="mb-4 flex h-[84px] flex-col space-y-2">
       {#if gameState === 'idle'}
         <Button onclick={startGame} size="xl">START</Button>
-        {#if permissionStatus === 'needs-user-gesture'}
-          <p class="text-muted-foreground text-xs">tap the button to enable motion sensors</p>
-        {/if}
       {:else if gameState === 'playing'}
         <div class="flex h-14 flex-col items-center">
           <div class="font-semibold">shake it like it's hot</div>
@@ -315,6 +314,10 @@
         </div>
       {/if}
     </div>
+
+    <!-- <div class="text-muted-foreground text-xs">
+      <div>debug: {debugInfo}</div>
+    </div> -->
   </div>
 
   <div class="text-muted-foreground mt-8 w-full max-w-md px-6 text-sm tabular-nums">
@@ -330,12 +333,14 @@
     <Dialog.Header>
       <Dialog.Title>device motion API unsupported</Dialog.Title>
       <Dialog.Description>
-        your device may not support the motion APIs required to run this experiment. for best
-        results, open this site on a modern mobile device.
+        your device may not support the motion APIs required to run this experiment. try opening
+        this site on a mobile device or closing and reopening your browser app.
       </Dialog.Description>
-      <Dialog.Footer>
-        <Button variant="outline" onclick={retryPermission}>retry</Button>
-        <Dialog.Close class={buttonVariants()}>close</Dialog.Close>
+      <Dialog.Footer class="flex w-full flex-row gap-4">
+        <Button class="grow" variant="outline" onclick={retryPermission}>retry</Button>
+        <Button class={cn('grow', buttonVariants())} onclick={() => (showErrorModal = false)}>
+          close
+        </Button>
       </Dialog.Footer>
     </Dialog.Header>
   </Dialog.Content>
