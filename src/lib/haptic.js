@@ -4,13 +4,15 @@
  */
 
 import { animate } from 'animejs';
+import { hapticEnabled } from './settings.js';
+import { get } from 'svelte/store';
 
 /**
  * Trigger haptic feedback (vibration)
  * @param {number} intensity - Feedback intensity (0.5 for shake, 1 for game end)
  */
 export function triggerHapticFeedback(intensity = 1) {
-  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+  if (get(hapticEnabled) && typeof navigator !== 'undefined' && navigator.vibrate) {
     if (intensity === 1) {
       // Game end vibration pattern
       navigator.vibrate([100, 50, 100, 50, 200]);

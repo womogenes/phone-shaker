@@ -3,6 +3,9 @@
  * Handles sound effects, audio context, and iOS audio requirements
  */
 
+import { soundEnabled } from './settings.js';
+import { get } from 'svelte/store';
+
 let audioContext = null;
 let gameEndSound = null;
 let shakeSound = null;
@@ -101,7 +104,7 @@ function createShakeSound() {
  * Play the game end sound
  */
 export async function playGameEndSound() {
-  if (gameEndSound) {
+  if (gameEndSound && get(soundEnabled)) {
     try {
       await gameEndSound();
     } catch (error) {
@@ -114,7 +117,7 @@ export async function playGameEndSound() {
  * Play the shake sound
  */
 export async function playShakeSound() {
-  if (shakeSound) {
+  if (shakeSound && get(soundEnabled)) {
     try {
       await shakeSound();
     } catch (error) {

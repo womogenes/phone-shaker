@@ -27,7 +27,7 @@
   // Icons
   import { InfoIcon } from '@lucide/svelte';
   import { cn } from '@/utils';
-  import SettingsModal from '@/components/settings-modal.svelte';
+  import SettingsModal from '$lib/components/settings-modal.svelte';
 
   // Game state (pure Svelte 5 reactive state)
   let gameState = $state('idle'); // 'idle', 'playing', 'finished'
@@ -46,7 +46,7 @@
   let acceleration = $state({ x: 0, y: 0, z: 0 });
   let accelerationHistory = $state([]);
   let startTime = $state(0);
-  let showSettingsModal = $state(true);
+  let showSettingsModal = $state(false);
 
   // Game systems
   let motionDetector = null;
@@ -270,7 +270,7 @@
     </div>
 
     <div class="mb-8">
-      <div class="mb-6 flex items-center justify-between">
+      <div class="mb-6 flex items-start justify-between">
         <div class="text-muted-foreground text-sm">
           high score: <span class="text-foreground">{highScore}</span><br />
           time: <span class="text-foreground">{timeLeft}s</span>

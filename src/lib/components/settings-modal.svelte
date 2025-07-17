@@ -3,32 +3,71 @@
   import Button, { buttonVariants } from '@/components/ui/button/button.svelte';
   import Switch from '@/components/ui/switch/switch.svelte';
 
-  import { InfoIcon, SettingsIcon } from '@lucide/svelte';
+  import { soundEnabled, hapticEnabled } from '$lib/settings.js';
+  import { cn } from '$lib/utils.js';
 
-  let { open } = $props();
+  import { InfoIcon, SettingsIcon, Volume2, VolumeX, Vibrate, VibrateOff } from '@lucide/svelte';
+
+  let { open = $bindable() } = $props();
+
+  // Local state for switches that syncs with stores
+  let soundToggle = $state($soundEnabled);
+  let hapticToggle = $state($hapticEnabled);
+
+  // Update stores when local state changes
+  $effect(() => {
+    soundEnabled.set(soundToggle);
+  });
+
+  $effect(() => {
+    hapticEnabled.set(hapticToggle);
+  });
+
+  // Update local state when stores change
+  $effect(() => {
+    soundToggle = $soundEnabled;
+  });
+
+  $effect(() => {
+    hapticToggle = $hapticEnabled;
+  });
 </script>
 
 <Dialog.Root {open}>
-  <Dialog.Trigger class={buttonVariants({ size: 'icon', variant: 'ghost' })}>
+  <Dialog.Trigger class={cn(buttonVariants({ size: 'xs', variant: 'ghost' }), '!p-0')}>
     <SettingsIcon />
   </Dialog.Trigger>
   <Dialog.Content class="">
     <Dialog.Header>
       <Dialog.Title class="mb-4">settings</Dialog.Title>
 
-      <div class="text-muted-foreground flex flex-col gap-2 text-sm">
-        <div class="flex justify-between">
-          <span>sound</span>
-          <Switch />
+      <div class="text-muted-foreground flex flex-col gap-4 text-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            {#if $soundEnabled}
+              <Volume2 size={16} />
+            {:else}
+              <VolumeX size={16} />
+            {/if}
+            <span>sound</span>
+          </div>
+          <Switch bind:checked={soundToggle} />
         </div>
-        <div class="flex justify-between">
-          <span>haptics</span>
-          <Switch />
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            {#if $hapticEnabled}
+              <Vibrate size={16} />
+            {:else}
+              <VibrateOff size={16} />
+            {/if}
+            <span>haptics</span>
+          </div>
+          <Switch bind:checked={hapticToggle} />
         </div>
       </div>
 
       <Dialog.Footer>
-        <Dialog.Close class={buttonVariants()}>close</Dialog.Close>
+        <Dialog.Close class={buttonVariants()} onclick={() => (open = false)}>close</Dialog.Close>
       </Dialog.Footer>
     </Dialog.Header>
   </Dialog.Content>

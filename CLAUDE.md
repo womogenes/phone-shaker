@@ -181,6 +181,7 @@ A shake is a **complete oscillation cycle**:
 ## Core Libraries (`src/lib/`)
 
 ### Game Systems
+
 - **`physics.js`** - Simplified shake detection using magnitude threshold
   - `SHAKE_THRESHOLD = 30` - Strong acceleration threshold
   - `SHAKE_COOLDOWN = 50ms` - Minimum time between shake detections
@@ -189,6 +190,7 @@ A shake is a **complete oscillation cycle**:
   - `isValidAcceleration()` - Input validation
 
 ### Motion & Sensors
+
 - **`motion.js`** - Device motion API wrapper
   - `createMotionDetector()` - Event listener management
   - `isMotionSupported()` - Feature detection
@@ -196,6 +198,7 @@ A shake is a **complete oscillation cycle**:
   - `getPermissionStatus()` - Permission state checking
 
 ### Audio System
+
 - **`audio.js`** - Web Audio API sound generation
   - `initializeAudioContext()` - Audio context setup
   - `createGameEndSound()` - Success melody (C-E-G chord)
@@ -203,6 +206,7 @@ A shake is a **complete oscillation cycle**:
   - `initAudioFromUserGesture()` - iOS audio unlock
 
 ### UI & Feedback
+
 - **`haptic.js`** - Vibration patterns using anime.js
   - `triggerShakeFeedback()` - 50ms vibration per shake
   - `triggerGameEndFeedback()` - Pattern vibration for game end
@@ -215,6 +219,7 @@ A shake is a **complete oscillation cycle**:
   - `setMetaThemeColor()` - Browser theme color sync
 
 ### Game Logic
+
 - **`game.js`** - Game state management (currently unused)
   - `createGameManager()` - Centralized game state
   - Timer management, scoring, persistence
@@ -223,6 +228,7 @@ A shake is a **complete oscillation cycle**:
 ## Main Application
 
 ### Routes
+
 - **`src/routes/+page.svelte`** - Main game interface
   - Svelte 5 `$state` reactive variables
   - Game state: `idle`, `playing`, `finished`
@@ -231,6 +237,7 @@ A shake is a **complete oscillation cycle**:
   - Audio/haptic feedback coordination
 
 ### Components
+
 - **`src/lib/components/ui/`** - shadcn-svelte components
   - `button/` - Primary action buttons
   - `dialog/` - Error modal system
@@ -238,17 +245,20 @@ A shake is a **complete oscillation cycle**:
 ## Technical Stack
 
 ### Core Technologies
+
 - **SvelteKit 2.22** - Full-stack framework
 - **Svelte 5** - Component framework with runes
 - **TypeScript 5** - Type safety
 - **Vite 7** - Build tool
 
 ### Styling
+
 - **Tailwind CSS 4** - Utility-first CSS
 - **Semantic color system** - Custom CSS variables
 - **shadcn-svelte** - Component library
 
 ### Dependencies
+
 - **anime.js 4.0.2** - Animation library
 - **bits-ui** - Headless components
 - **clsx** - Conditional classes
@@ -257,6 +267,7 @@ A shake is a **complete oscillation cycle**:
 ## Current Implementation Status
 
 ### ✅ Completed Features
+
 - Basic shake detection and counting
 - Audio feedback system
 - Haptic vibration feedback
@@ -267,12 +278,14 @@ A shake is a **complete oscillation cycle**:
 - SSL setup for HTTPS development
 
 ### ❌ Missing Features
+
 - Backend leaderboard system
 - Debug visualization graph
 - Complete game state management integration
 - Supabase database integration
 
 ### 🔧 Technical Notes
+
 - Game logic is directly embedded in `+page.svelte`
 - `game.js` manager exists but is not integrated
 - Motion detection uses simple threshold approach
@@ -281,6 +294,7 @@ A shake is a **complete oscillation cycle**:
 # Development Commands
 
 ## Local Development
+
 ```bash
 # Start development server with SSL
 pnpm dev  # Runs on https://localhost:5175
@@ -299,6 +313,7 @@ pnpm format
 ```
 
 ## SSL Certificate Setup
+
 ```bash
 # Quick setup (recommended)
 ./setup-ssl.sh
