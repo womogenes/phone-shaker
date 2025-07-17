@@ -1,63 +1,52 @@
 /**
- * Physics-based shake detection for the phone shaker game
- * Implements peak detection to accurately count directional changes
+ * Simplified   ke detection for the phone shaker game
+ * High acceleration = shake detected
  */
 
-// Tuned thresholds for optimal shake detection
-export const MOTION_THRESHOLD = 2.0; // Minimum motion to count as shake
-export const PEAK_COOLDOWN = 100; // ms between peaks
+// Simplified thresholds
+export const SHAKE_THRESHOLD = 30; // Strong acceleration threshold
+export const SHAKE_COOLDOWN = 50; // ms between shake detections
 
 /**
- * Create a peak-detection shake detector
+ * Create a simplified shake detector
  * @returns {Object} Shake detector with detectShake method and state
  */
 export function createShakeDetector() {
-  let lastAccelMagnitude = 0;
-  let recentPeaks = [];
+  let lastShakeTime = 0;
 
   return {
     /**
-     * Detect shakes using peak detection algorithm
-     * @param {Object} accelerationData - Acceleration data {x, y, z, isLinear}
+     * Detect shakes using simple magnitude threshold
+     * @param {Object} accelerationData - Acceleration data {x, y, z, hasGravity}
      * @param {number} currentTime - Current timestamp
      * @returns {Object|null} Shake result with motion magnitude, or null if no shake
      */
     detectShake(accelerationData, currentTime) {
       const magnitude = calculateAccelerationMagnitude(accelerationData);
-      
-      // Calculate motion magnitude (remove gravity if needed)
-      const motionMagnitude = accelerationData.hasGravity 
-        ? Math.abs(magnitude - 9.8) // Remove gravity
-        : magnitude; // Already gravity-free
 
-      // Clean up old peaks (remove peaks older than 1 second)
-      recentPeaks = recentPeaks.filter(time => currentTime - time < 1000);
+      // Remove gravity if present
+      const motionMagnitude = accelerationData.hasGravity ? Math.abs(magnitude - 9.8) : magnitude;
 
-      // Detect peaks: current motion is high AND previous was low
-      const isMotionSpike = motionMagnitude > MOTION_THRESHOLD && lastAccelMagnitude <= MOTION_THRESHOLD;
-      const enoughTimeSinceLastPeak = recentPeaks.length === 0 || 
-        currentTime - recentPeaks[recentPeaks.length - 1] > PEAK_COOLDOWN;
+      // Check if enough time has passed since last shake
+      const enoughTimeSinceLastShake = currentTime - lastShakeTime > SHAKE_COOLDOWN;
 
-      let shakeDetected = false;
-      if (isMotionSpike && enoughTimeSinceLastPeak) {
-        recentPeaks.push(currentTime);
-        shakeDetected = true;
+      // Detect shake: strong acceleration + cooldown period passed
+      if (motionMagnitude > SHAKE_THRESHOLD && enoughTimeSinceLastShake) {
+        lastShakeTime = currentTime;
+        return {
+          motionMagnitude,
+          sensorType: accelerationData.hasGravity ? 'motion+gravity' : 'motion-only',
+        };
       }
 
-      lastAccelMagnitude = motionMagnitude;
-
-      return shakeDetected ? {
-        motionMagnitude,
-        sensorType: accelerationData.hasGravity ? 'motion+gravity' : 'motion-only'
-      } : null;
+      return null;
     },
 
     /**
      * Reset the shake detector state
      */
     reset() {
-      lastAccelMagnitude = 0;
-      recentPeaks = [];
+      lastShakeTime = 0;
     },
 
     /**
@@ -66,10 +55,10 @@ export function createShakeDetector() {
      */
     getDebugInfo() {
       return {
-        lastMagnitude: lastAccelMagnitude,
-        recentPeaksCount: recentPeaks.length
+        lastShakeTime,
+        timeSinceLastShake: Date.now() - lastShakeTime,
       };
-    }
+    },
   };
 }
 

@@ -250,26 +250,27 @@
 <div class="flex h-full items-center justify-center">
   <div class="mx-auto w-full max-w-md px-6 pt-10 pb-4">
     <div class="mb-8">
-      <h1 class="text-foreground mb-4 text-5xl leading-10 font-extrabold">
+      <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
         HOW FAST CAN YOU SHAKE YOUR PHONE?
       </h1>
-      <p class="text-muted-foreground">Shake your phone as fast as you can in ten seconds</p>
     </div>
 
     <div class="mb-8">
       <div class="mb-6 flex items-center justify-between">
         <div class="text-muted-foreground text-sm">
-          High Score: <span class="text-foreground font-mono">{highScore}</span>
+          High score: <span class="text-foreground font-mono">{highScore}</span>
         </div>
         <div class="text-muted-foreground text-sm">
           Time: <span class="text-foreground font-mono">{timeLeft}s</span>
         </div>
       </div>
 
-      <div class="text-foreground mb-2 font-mono text-5xl font-bold">
-        {shakeCount}
+      <div class="flex flex-col items-center">
+        <div class="text-foreground mb-0 font-mono text-8xl font-black">
+          {shakeCount}
+        </div>
+        <div class="text-muted-foreground text-sm">shakes</div>
       </div>
-      <div class="text-muted-foreground text-sm">shakes</div>
     </div>
 
     <div class="space-y-4">
@@ -279,25 +280,25 @@
           class="bg-primary text-primary-foreground hover:bg-primary/80 w-full px-6 py-3 font-semibold transition-colors duration-200"
         >
           {#if permissionStatus === 'needs-user-gesture'}
-            Allow Motion & Start
+            START
           {:else}
-            Start Shaking
+            START SHAKING
           {/if}
         </button>
         {#if permissionStatus === 'needs-user-gesture'}
-          <p class="text-muted-foreground mt-2 text-xs">Tap the button to enable motion sensors</p>
+          <p class="text-muted-foreground mt-2 text-xs">tap the button to enable motion sensors</p>
         {/if}
       {:else if gameState === 'playing'}
-        <div class="border-border bg-muted text-foreground border px-6 py-3">
-          <div class="font-semibold">Game in Progress</div>
-          <div class="text-muted-foreground text-sm">Keep shaking your phone</div>
+        <div class="border-border bg-muted text-foreground border px-4 py-3">
+          <div class="font-semibold">SHAKE IT LIKE IT'S HOT</div>
+          <div class="text-muted-foreground text-sm">keep shaking your phone</div>
         </div>
       {:else if gameState === 'finished'}
         <div class="border-border bg-muted text-foreground mb-4 border px-6 py-3">
           <div class="font-semibold">Game Over</div>
-          <div class="text-muted-foreground text-sm">You shook {currentScore} times</div>
+          <div class="text-muted-foreground text-sm">you shook {currentScore} times</div>
           {#if currentScore === highScore}
-            <div class="text-foreground text-sm font-semibold">New High Score!</div>
+            <div class="text-foreground text-sm font-semibold">new high score!</div>
           {/if}
         </div>
         <button
@@ -312,9 +313,9 @@
     <div class="text-muted-foreground mt-8 text-xs tabular-nums">
       <!-- Debug info -->
       <div class="text-muted-foreground mt-4 flex flex-col gap-1 text-xs">
-        <p>Debug: {debugInfo}</p>
-        <p>Motion: {motionSupported ? 'Supported' : 'Not supported'}</p>
-        <p>Permission: {permissionStatus}</p>
+        <p>debug: {debugInfo}</p>
+        <p>motion: {motionSupported ? 'Supported' : 'Not supported'}</p>
+        <p>permission: {permissionStatus}</p>
         {#if gameState === 'playing'}
           <p>Data: {acceleration.hasGravity ? 'with gravity' : 'gravity-free'}</p>
           <p>
