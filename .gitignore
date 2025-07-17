@@ -30,3 +30,5 @@ certs/
 
 # llms.txt
 **llms**.txt
+
+.claude/

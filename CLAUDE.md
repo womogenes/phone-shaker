@@ -175,3 +175,167 @@ A shake is a **complete oscillation cycle**:
 - **Noise filtering**: Ignores device vibrations and small movements
 - **Consistent**: Works across different shaking styles and orientations
 - **Physics-accurate**: Based on actual motion physics principles
+
+# Current Architecture
+
+## Core Libraries (`src/lib/`)
+
+### Game Systems
+- **`physics.js`** - Simplified shake detection using magnitude threshold
+  - `SHAKE_THRESHOLD = 30` - Strong acceleration threshold
+  - `SHAKE_COOLDOWN = 50ms` - Minimum time between shake detections
+  - `calculateAccelerationMagnitude()` - 3D magnitude calculation
+  - `createShakeDetector()` - Simple threshold-based detection
+  - `isValidAcceleration()` - Input validation
+
+### Motion & Sensors
+- **`motion.js`** - Device motion API wrapper
+  - `createMotionDetector()` - Event listener management
+  - `isMotionSupported()` - Feature detection
+  - `requestMotionPermission()` - iOS permission handling
+  - `getPermissionStatus()` - Permission state checking
+
+### Audio System
+- **`audio.js`** - Web Audio API sound generation
+  - `initializeAudioContext()` - Audio context setup
+  - `createGameEndSound()` - Success melody (C-E-G chord)
+  - `createShakeSound()` - Bright metal ding sound
+  - `initAudioFromUserGesture()` - iOS audio unlock
+
+### UI & Feedback
+- **`haptic.js`** - Vibration patterns using anime.js
+  - `triggerShakeFeedback()` - 50ms vibration per shake
+  - `triggerGameEndFeedback()` - Pattern vibration for game end
+  - `triggerPhoneAnimation()` - Visual shake effects
+  - `triggerCounterAnimation()` - Counter scaling effects
+
+- **`theme.js`** - Dark/light mode switching
+  - `switchToDarkMode()` - Gameplay dark mode
+  - `switchToLightMode()` - Menu light mode
+  - `setMetaThemeColor()` - Browser theme color sync
+
+### Game Logic
+- **`game.js`** - Game state management (currently unused)
+  - `createGameManager()` - Centralized game state
+  - Timer management, scoring, persistence
+  - High score localStorage handling
+
+## Main Application
+
+### Routes
+- **`src/routes/+page.svelte`** - Main game interface
+  - Svelte 5 `$state` reactive variables
+  - Game state: `idle`, `playing`, `finished`
+  - Timer countdown, shake counting
+  - Motion detection integration
+  - Audio/haptic feedback coordination
+
+### Components
+- **`src/lib/components/ui/`** - shadcn-svelte components
+  - `button/` - Primary action buttons
+  - `dialog/` - Error modal system
+
+## Technical Stack
+
+### Core Technologies
+- **SvelteKit 2.22** - Full-stack framework
+- **Svelte 5** - Component framework with runes
+- **TypeScript 5** - Type safety
+- **Vite 7** - Build tool
+
+### Styling
+- **Tailwind CSS 4** - Utility-first CSS
+- **Semantic color system** - Custom CSS variables
+- **shadcn-svelte** - Component library
+
+### Dependencies
+- **anime.js 4.0.2** - Animation library
+- **bits-ui** - Headless components
+- **clsx** - Conditional classes
+- **tailwind-variants** - Component variants
+
+## Current Implementation Status
+
+### ✅ Completed Features
+- Basic shake detection and counting
+- Audio feedback system
+- Haptic vibration feedback
+- Dark/light mode theme switching
+- Game timer (10 seconds)
+- High score persistence
+- Motion permission handling
+- SSL setup for HTTPS development
+
+### ❌ Missing Features
+- Backend leaderboard system
+- Debug visualization graph
+- Complete game state management integration
+- Supabase database integration
+
+### 🔧 Technical Notes
+- Game logic is directly embedded in `+page.svelte`
+- `game.js` manager exists but is not integrated
+- Motion detection uses simple threshold approach
+- No external API endpoints currently implemented
+
+# Development Commands
+
+## Local Development
+```bash
+# Start development server with SSL
+pnpm dev  # Runs on https://localhost:5175
+
+# Build for production
+pnpm build
+
+# Preview production build
+pnpm preview
+
+# Type checking
+pnpm check
+
+# Format code
+pnpm format
+```
+
+## SSL Certificate Setup
+```bash
+# Quick setup (recommended)
+./setup-ssl.sh
+
+# Manual setup with mkcert
+mkcert -install
+mkcert localhost 127.0.0.1 ::1
+```
+
+# File Structure
+
+```
+src/
+├── lib/
+│   ├── audio.js           # Web Audio API sounds
+│   ├── game.js            # Game state management
+│   ├── haptic.js          # Vibration & animations
+│   ├── motion.js          # Device motion detection
+│   ├── physics.js         # Shake detection logic
+│   ├── theme.js           # Dark/light mode
+│   └── components/ui/     # shadcn-svelte components
+├── routes/
+│   ├── +layout.svelte     # App layout
+│   ├── +page.js           # Page data loading
+│   └── +page.svelte       # Main game interface
+├── app.css               # Global styles & variables
+├── app.html              # HTML template
+└── tweakcn.css           # Component style overrides
+```
+
+# Important Instructions
+
+- Use Svelte 5 syntax with runes (`$state`, `$derived`, `$effect`)
+- Follow semantic color system (use CSS variables, not hardcoded colors)
+- Keep UI minimal: no gradients, rounded corners, semantic colors only
+- Write modular, reusable code
+- All motion detection requires HTTPS
+- Test on mobile devices for motion events
+- Use anime.js for animations
+- Maintain clean typography and consistent spacing
