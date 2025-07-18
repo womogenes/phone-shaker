@@ -7,7 +7,7 @@ export async function GET() {
     // Get top scores from leaderboard
     const { data: topScores, error } = await supabaseClient
       .from('leaderboard')
-      .select('*')
+      .select('created_at,score,player_name')
       .order('score', { ascending: false })
       .limit(50);
 
