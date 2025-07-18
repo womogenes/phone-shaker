@@ -8,7 +8,7 @@
   import { TrophyIcon, UserIcon, CalendarIcon, Loader2Icon } from '@lucide/svelte';
 
   // Props
-  let { open = $bindable(), currentScore = 0, accelerationHistory = [] } = $props();
+  let { open = $bindable(), currentScore = 0, accelerationHistory = [], resetGame } = $props();
 
   // State
   let leaderboard = $state([]);
@@ -153,9 +153,17 @@
               </div>
             </div>
           {:else if submitted}
-            <div class="mb-4 flex-shrink-0 rounded-lg border border-green-200 bg-green-50 p-4">
-              <div class="mb-1 font-semibold text-green-800">score submitted</div>
-              <div class="text-sm text-green-700">thanks for playing!</div>
+            <div class="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <div class="font-semibold text-green-800">score submitted</div>
+                <div class="text-sm text-green-700">thanks for playing!</div>
+              </div>
+              <Button
+                onclick={() => {
+                  open = false;
+                  resetGame();
+                }}>PLAY AGAIN</Button
+              >
             </div>
           {/if}
 
