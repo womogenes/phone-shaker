@@ -2,10 +2,11 @@
   import { onMount } from 'svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import Button from '$lib/components/ui/button/button.svelte';
-  import { TrophyIcon, UserIcon, CalendarIcon } from '@lucide/svelte';
+
+  import { TrophyIcon, UserIcon, CalendarIcon, Loader2Icon } from '@lucide/svelte';
 
   // Props
-  let { open = $bindable(), currentScore = 0, isNewHighScore = false } = $props();
+  let { open = $bindable(), currentScore = 0 } = $props();
 
   // State
   let leaderboard = $state([]);
@@ -66,7 +67,7 @@
     } catch (err) {
       error = 'Network error submitting score';
     } finally {
-      submitting = false;
+      setTimeout(() => (submitting = false), 500);
     }
   }
 
@@ -82,16 +83,7 @@
 
   // Get rank emoji
   function getRankEmoji(index) {
-    switch (index) {
-      case 0:
-        return '🥇';
-      case 1:
-        return '🥈';
-      case 2:
-        return '🥉';
-      default:
-        return `${index + 1}.`;
-    }
+    return `${index + 1}`;
   }
 
   // Reset state when dialog opens
@@ -107,8 +99,8 @@
 
 <Dialog.Root {open} onOpenChange={(newOpen) => (open = newOpen)}>
   <Dialog.Content class="flex h-full w-full !max-w-none justify-center border-t border-white">
-    <div class="w-full max-w-md">
-      <Dialog.Header class="mb-4 pt-8">
+    <div class="flex h-full w-full max-w-md flex-col overflow-hidden">
+      <Dialog.Header class="mb-4 pt-8 flex-shrink-0">
         <Dialog.Title class="flex items-center gap-2">global leaderboard</Dialog.Title>
       </Dialog.Header>
 
@@ -120,52 +112,61 @@
           <Button variant="outline" onclick={fetchLeaderboard}>Retry</Button>
         </div>
       {:else}
-        <!-- Score submission section -->
-        {#if isNewHighScore && !submitted}
-          <div class="bg-primary/10 border-primary/20 mb-4 rounded-lg border p-4">
-            <div class="text-primary mb-2 font-semibold">new high score!</div>
-            <div class="text-muted-foreground mb-3 text-sm">
-              you shook {currentScore} times! submit your score to the global leaderboard.
+        <div class="flex flex-col overflow-hidden">
+          <!-- Score submission section -->
+          {#if !submitted && currentScore > 0}
+            <div class="mb-4 rounded-lg border p-4 flex-shrink-0">
+              <div class="text-muted-foreground mb-3 text-sm">
+                you shook <b class="text-foreground">{currentScore}</b> times! submit your score to the
+                global leaderboard.
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  bind:value={playerName}
+                  placeholder="Enter your name"
+                  maxlength="20"
+                  class="border-input bg-background flex-1 grow rounded-md border px-3 py-2 text-sm"
+                  disabled={submitting}
+                />
+                <Button
+                  class="h-9.5"
+                  onclick={submitScore}
+                  disabled={!playerName.trim() || submitting}
+                >
+                  {#if submitting}
+                    <Loader2Icon class="animate-spin" />
+                  {:else}
+                    <span>submit</span>
+                  {/if}
+                </Button>
+              </div>
             </div>
-            <div class="flex gap-2">
-              <input
-                bind:value={playerName}
-                placeholder="Enter your name"
-                maxlength="20"
-                class="border-input bg-background flex-1 rounded-md border px-3 py-2 text-sm"
-                disabled={submitting}
-              />
-              <Button onclick={submitScore} disabled={!playerName.trim() || submitting} size="sm">
-                {submitting ? 'submitting...' : 'submit'}
-              </Button>
+          {:else if submitted}
+            <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4 flex-shrink-0">
+              <div class="mb-1 font-semibold text-green-800">score submitted</div>
+              <div class="text-sm text-green-700">thanks for playing!</div>
             </div>
-          </div>
-        {:else if submitted}
-          <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
-            <div class="mb-1 font-semibold text-green-800">✅ score submitted</div>
-            <div class="text-sm text-green-700">thanks for playing!</div>
-          </div>
-        {/if}
+          {/if}
 
-        <!-- Leaderboard table -->
-        <div class="max-h-96 space-y-2 overflow-y-auto text-sm">
+          <!-- Leaderboard table -->
+          <div class="flex-1 space-y-2 overflow-y-auto text-sm">
           {#if leaderboard.length === 0}
             <div class="text-secondary-foreground py-8">no scores yet. be the first to submit!</div>
           {:else}
             {#each leaderboard as entry, index}
               <div class="bg-muted/50 flex items-center justify-between rounded-lg p-3">
-                <div class="flex items-center gap-3">
-                  <div class="text-primary w-8 font-bold">
+                <div class="flex items-center">
+                  <div class="text-muted-foreground mr-4 ml-2 text-left text-3xl font-bold">
                     {getRankEmoji(index)}
                   </div>
                   <div>
-                    <div class="flex items-center gap-1 font-semibold">
+                    <div class="flex items-center gap-2 font-semibold">
                       <UserIcon class="h-3 w-3" />
                       {entry.player_name}
                     </div>
-                    <div class="text-muted-foreground flex items-center gap-1 text-xs">
+                    <div class="text-muted-foreground flex items-center gap-2 text-xs">
                       <CalendarIcon class="h-3 w-3" />
-                      {formatDate(entry.created_at)}
+                      <span class="mt-[1px]">{formatDate(entry.created_at)}</span>
                     </div>
                   </div>
                 </div>
@@ -176,6 +177,7 @@
               </div>
             {/each}
           {/if}
+          </div>
         </div>
       {/if}
     </div>

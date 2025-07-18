@@ -235,7 +235,7 @@
     // Reset all state
     gameState = 'idle';
     shakeCount = 0;
-    timeLeft = 10;
+    timeLeft = 2;
     currentScore = 0;
     if (shakeDetector) {
       shakeDetector.reset();
@@ -305,11 +305,9 @@
     </div>
 
     <div class="mb-8">
-      <div class="mb-6 flex items-start justify-between">
-        <div class="text-muted-foreground text-sm">
-          high score: <span class="text-foreground">{highScore}</span><br />
-          time: <span class="text-foreground">{timeLeft}s</span>
-        </div>
+      <div class="text-muted-foreground mb-6 flex items-start justify-between text-sm">
+        <div>high score: <span class="text-foreground">{highScore}</span></div>
+        <div>time: <span class="text-foreground">{timeLeft}s</span></div>
       </div>
 
       <div class="flex flex-col items-center">
@@ -324,27 +322,25 @@
       {#if gameState === 'idle'}
         <Button onclick={startGame} size="xl">START</Button>
       {:else if gameState === 'playing'}
-        <div class="flex h-14 flex-col items-center">
+        <div class="flex flex-col items-center">
           <div class="font-semibold">shake it like it's hot</div>
           <div class="text-muted-foreground text-sm">keep shaking your phone</div>
         </div>
       {:else if gameState === 'finished'}
+        <div class="text-sm"><b>game over</b> (you shook {currentScore} times)</div>
+        {#if currentScore >= highScore}
+          <div class="font-semibold">new high score!</div>
+        {/if}
+        <Button
+          class="w-full"
+          size="xl"
+          onclick={() => (showLeaderboardModal = true)}
+          variant="outline"
+        >
+          <TrophyIcon class="mr-2 h-4 w-4" />
+          VIEW LEADERBOARD
+        </Button>
         <Button onclick={resetGame} size="xl">PLAY AGAIN</Button>
-        <div class="text-sm">
-          <div class="text-sm"><b>game over</b> (you shook {currentScore} times)</div>
-          {#if currentScore >= highScore}
-            <div class="font-semibold">new high score!</div>
-            <Button
-              onclick={() => (showLeaderboardModal = true)}
-              variant="outline"
-              size="sm"
-              class="mt-2"
-            >
-              <TrophyIcon class="mr-2 h-4 w-4" />
-              View Leaderboard
-            </Button>
-          {/if}
-        </div>
       {/if}
     </div>
 
@@ -385,8 +381,4 @@
 <SettingsModal bind:open={showSettingsModal} />
 
 <!-- Leaderboard Modal -->
-<LeaderboardModal
-  bind:open={showLeaderboardModal}
-  {currentScore}
-  isNewHighScore={currentScore >= highScore && gameState === 'finished'}
-/>
+<LeaderboardModal bind:open={showLeaderboardModal} {currentScore} />
