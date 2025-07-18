@@ -235,7 +235,7 @@
     // Reset all state
     gameState = 'idle';
     shakeCount = 0;
-    timeLeft = 2;
+    timeLeft = 10;
     currentScore = 0;
     if (shakeDetector) {
       shakeDetector.reset();
@@ -272,7 +272,7 @@
   }
 </script>
 
-<div class="flex min-h-screen flex-col items-center justify-between">
+<div class="flex min-h-full flex-col items-center justify-between">
   <!-- Full width top bar -->
   <div class="flex w-full justify-center border-b">
     <!-- Just the buttons -->

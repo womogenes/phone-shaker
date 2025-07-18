@@ -105,7 +105,12 @@
   });
 </script>
 
-<Dialog.Root {open} onOpenChange={(newOpen) => (open = newOpen)}>
+<Dialog.Root
+  {open}
+  onOpenChange={(newOpen) => {
+    open = newOpen;
+  }}
+>
   <Dialog.Content class="border-background flex h-full w-full !max-w-none justify-center border-t">
     <div class="flex h-full w-full max-w-md flex-col overflow-hidden">
       <Dialog.Header class="mb-4 flex-shrink-0 pt-8">

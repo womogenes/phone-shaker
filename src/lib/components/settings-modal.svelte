@@ -33,7 +33,7 @@
   });
 </script>
 
-<Dialog.Root {open}>
+<Dialog.Root {open} onOpenChange={(newOpen) => (open = newOpen)}>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title class="mb-4">settings</Dialog.Title>
@@ -46,7 +46,7 @@
             {:else}
               <VolumeX size={16} />
             {/if}
-            <span>sound</span>
+            <span>sound (needs ringer on)</span>
           </div>
           <Switch bind:checked={soundToggle} />
         </div>
@@ -57,7 +57,7 @@
             {:else}
               <VibrateOff size={16} />
             {/if}
-            <span>haptics</span>
+            <span>haptics (ios unsupported)</span>
           </div>
           <Switch bind:checked={hapticToggle} />
         </div>
