@@ -43,12 +43,21 @@ export const sendAccelerationHistory = async (accelerationHistory) => {
   // Don't send null data (e.g. from desktops)
   if (!accelerationHistory || accelerationHistory.length === 0) return;
 
+  const payload = {
+    accelerationHistory,
+    posthog_distinct_id: posthog.get_distinct_id()
+  };
+
   await fetch('/api/shake-data', {
     method: 'POST',
-    body: serialize(accelerationHistory),
+    body: JSON.stringify(payload),
     headers: {
       'Content-Type': 'application/json',
     },
   });
-  posthog.capture('shake-data', serializedData);
+  
+  posthog.capture('shake-data', {
+    distinct_id: posthog.get_distinct_id(),
+    data: serialize(accelerationHistory)
+  });
 };
