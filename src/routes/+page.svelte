@@ -302,7 +302,7 @@
   </div>
 
   <div class="mx-auto flex h-full w-full max-w-md flex-col justify-center px-6">
-    <div class="my-4 sm:my-6">
+    <div class="my-6">
       <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
         how fast can you shake?
       </h1>

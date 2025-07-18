@@ -71,7 +71,7 @@
       </div>
 
       <Dialog.Footer class="flex self-end">
-        <Dialog.Close class={buttonVariants()} onclick={() => (open = false)}>close</Dialog.Close>
+        <Dialog.Close class={buttonVariants()} onclick={() => (open = false)}>save</Dialog.Close>
       </Dialog.Footer>
     </Dialog.Header>
   </Dialog.Content>

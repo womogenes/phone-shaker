@@ -8,14 +8,18 @@
 </script>
 
 <Dialog.Root {open}>
-  <Dialog.Trigger class="bg-background underline">how to play</Dialog.Trigger>
+  <Dialog.Trigger class="underline">how to play</Dialog.Trigger>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title class="mb-4">how to play</Dialog.Title>
 
-      <div class="text-secondary-foreground mb-4 flex flex-col gap-4 text-sm">
+      <div class="text-muted-foreground mb-4 flex flex-col gap-4 text-sm">
         <p>click start and shake your phone as fast as you can in ten seconds.</p>
-        <p>coming soon: global leaderboard</p>
+        <p>
+          please send bug reports to <a class="underline" href="mailto:hfcys@wfeng.dev"
+            >hfcys@wfeng.dev</a
+          >.
+        </p>
       </div>
 
       <Dialog.Footer class="flex items-end">
