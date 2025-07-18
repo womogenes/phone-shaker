@@ -46,7 +46,7 @@
             {:else}
               <VolumeX size={16} />
             {/if}
-            <span>sound (needs ringer on)</span>
+            <span>sound (requires ringer on)</span>
           </div>
           <Switch bind:checked={soundToggle} />
         </div>

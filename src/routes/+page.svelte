@@ -293,8 +293,8 @@
       >
         <SettingsIcon
           class={cn(
-            'text-muted-foreground active:text-foreground size-5 transition-transform',
-            showSettingsModal ? 'rotate-90' : 'rotate-0',
+            'text-muted-foreground active:text-foreground size-5 transition-transform duration-500',
+            showSettingsModal ? 'rotate-180' : 'rotate-0',
           )}
         />
       </Button>

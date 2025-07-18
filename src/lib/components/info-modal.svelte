@@ -16,9 +16,7 @@
       <div class="text-muted-foreground mb-4 flex flex-col gap-4 text-sm">
         <p>click start and shake your phone as fast as you can in ten seconds.</p>
         <p>
-          please send bug reports to <a class="underline" href="mailto:hfcys@wfeng.dev"
-            >hfcys@wfeng.dev</a
-          >.
+          bug reports: <a class="underline" href="mailto:hfcys@wfeng.dev">hfcys@wfeng.dev</a>
         </p>
       </div>
 
