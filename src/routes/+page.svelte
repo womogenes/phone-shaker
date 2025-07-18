@@ -142,14 +142,12 @@
   }
 
   async function startGame() {
-    // Initialize audio from user gesture (iOS requirement)
-    await initAudioFromUserGesture();
-
     // Request motion permission if needed
-    if (permissionStatus === 'needs-user-gesture') {
-      try {
+
+    try {
+      const response = await DeviceMotionEvent?.requestPermission?.();
+      if (permissionStatus === 'needs-user-gesture') {
         debugInfo = 'requesting motion permission...';
-        const response = await DeviceMotionEvent?.requestPermission();
         permissionStatus = response;
 
         if (response === 'granted') {
@@ -158,11 +156,15 @@
           showError(`motion permission denied: ${response}`);
           return;
         }
-      } catch (error) {
-        showError(`permission request failed: ${error.message}`);
-        return;
       }
+    } catch (error) {
+      alert(`error: ${error}`);
+      showError(`permission request failed: ${error.message}`);
+      return;
     }
+
+    // Initialize audio from user gesture (iOS requirement)
+    await initAudioFromUserGesture();
 
     // Ensure motion detection is set up
     if (!motionDetector) {
@@ -332,9 +334,9 @@
     <Dialog.Header>
       <Dialog.Title class="mb-4">device motion API unsupported</Dialog.Title>
 
-      <div class="text-secondary-foreground mb-4 text-sm">
-        your device may not support the motion APIs required to run this experiment. try opening
-        this site on a mobile device or closing and reopening your browser app.
+      <div class="text-secondary-foreground mb-4 flex flex-col gap-2 text-sm">
+        <p>your device may not support the motion APIs required to run this experiment.</p>
+        <p>try opening this site on a mobile device or closing and reopening your browser app.</p>
       </div>
 
       <Dialog.Footer class="flex w-full flex-row gap-4">
