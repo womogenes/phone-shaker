@@ -12,6 +12,6 @@
     @apply h-full overflow-clip overscroll-none;
   }
   body {
-    @apply bg-background text-foreground !m-0 h-full overflow-clip overscroll-none transition-colors;
+    @apply bg-background text-foreground !m-0 h-full overscroll-none transition-colors;
   }
 }

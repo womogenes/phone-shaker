@@ -8,7 +8,7 @@
 </script>
 
 <Dialog.Root {open}>
-  <Dialog.Trigger class="underline">how to play</Dialog.Trigger>
+  <Dialog.Trigger class="bg-background underline">how to play</Dialog.Trigger>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title class="mb-4">how to play</Dialog.Title>

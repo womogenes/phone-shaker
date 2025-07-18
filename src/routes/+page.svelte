@@ -272,7 +272,7 @@
   }
 </script>
 
-<div class="flex h-full flex-col items-center justify-center">
+<div class="flex min-h-screen flex-col items-center justify-between">
   <!-- Full width top bar -->
   <div class="flex w-full justify-center border-b">
     <!-- Just the buttons -->
@@ -297,8 +297,8 @@
   </div>
 
   <div class="mx-auto flex h-full w-full max-w-md flex-col justify-center px-6">
-    <div class="mb-6">
-      <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
+    <div class="my-4 sm:my-6">
+      <h1 class="text-foreground mb-4 text-xl font-black tracking-tight sm:text-5xl sm:leading-11">
         how fast can you shake?
       </h1>
       <p class="text-muted-foreground text-sm">find out today using our silly little app!</p>
@@ -318,7 +318,7 @@
       </div>
     </div>
 
-    <div class="mb-4 flex h-[84px] flex-col space-y-2">
+    <div class="flex h-44 flex-col space-y-2">
       {#if gameState === 'idle'}
         <Button onclick={startGame} size="xl">START</Button>
       {:else if gameState === 'playing'}
@@ -329,7 +329,7 @@
       {:else if gameState === 'finished'}
         <div class="text-sm"><b>game over</b> (you shook {currentScore} times)</div>
         {#if currentScore >= highScore}
-          <div class="mb-1 text-sm font-semibold">new high score!</div>
+          <div class="mb-2 text-sm font-semibold">new high score!</div>
         {/if}
         <Button
           class="w-full"
@@ -337,8 +337,7 @@
           onclick={() => (showLeaderboardModal = true)}
           variant="outline"
         >
-          <TrophyIcon class="mr-2 h-4 w-4" />
-          VIEW LEADERBOARD
+          LEADERBOARD
         </Button>
         <Button onclick={resetGame} size="xl">PLAY AGAIN</Button>
       {/if}
@@ -349,10 +348,14 @@
     </div> -->
   </div>
 
-  <div class="text-muted-foreground mt-8 w-full max-w-md px-6 py-5 text-sm tabular-nums">
+  <div class="text-muted-foreground w-full max-w-md px-6 py-5 text-sm tabular-nums">
     <div class="flex justify-between gap-2">
       <InfoModal />
-      <p><a class="underline" href="https://github.com/womogenes/phone-shaker">source</a></p>
+      <p>
+        <a class="bg-background underline" href="https://github.com/womogenes/phone-shaker"
+          >source</a
+        >
+      </p>
     </div>
   </div>
 </div>
