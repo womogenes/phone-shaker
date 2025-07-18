@@ -1,4 +1,5 @@
 import { supabaseClient } from '$lib/server/supabase-client.js';
+import { createShakeDetector } from '@/physics.js';
 
 export async function GET() {
   try {
@@ -29,7 +30,7 @@ export async function GET() {
 
 export async function POST({ request, getClientAddress }) {
   try {
-    const { score, playerName } = await request.json();
+    const { score, hash, playerName } = await request.json();
     const clientIp = getClientAddress();
 
     // Validate input
@@ -37,6 +38,24 @@ export async function POST({ request, getClientAddress }) {
       return Response.json(
         {
           error: 'Invalid score',
+          success: false,
+        },
+        { status: 400 },
+      );
+    }
+
+    // Actually validate input
+    const shakeDetector = createShakeDetector();
+    const accelerationHistory = atob(hash);
+    let verifiedScore = 0;
+    for (let [timestamp, x, y, z] of accelerationHistory) {
+      verifiedScore += shakeDetector.detectShake({ x, y, z }, timestamp);
+    }
+
+    if (score != verifiedScore) {
+      return Response.json(
+        {
+          error: 'Unverified score',
           success: false,
         },
         { status: 400 },

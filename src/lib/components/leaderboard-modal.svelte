@@ -6,7 +6,7 @@
   import { TrophyIcon, UserIcon, CalendarIcon, Loader2Icon } from '@lucide/svelte';
 
   // Props
-  let { open = $bindable(), currentScore = 0 } = $props();
+  let { open = $bindable(), currentScore = 0, accelerationHistory = [] } = $props();
 
   // State
   let leaderboard = $state([]);
@@ -54,7 +54,8 @@
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          score: currentScore,
+          currentScore,
+          hash: btoa(accelerationHistory),
           playerName: playerName.trim(),
         }),
       });

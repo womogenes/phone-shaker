@@ -381,4 +381,4 @@
 <SettingsModal bind:open={showSettingsModal} />
 
 <!-- Leaderboard Modal -->
-<LeaderboardModal bind:open={showLeaderboardModal} {currentScore} />
+<LeaderboardModal bind:open={showLeaderboardModal} {currentScore} {accelerationHistory} />
