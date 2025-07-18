@@ -329,7 +329,7 @@
       {:else if gameState === 'finished'}
         <div class="text-sm"><b>game over</b> (you shook {currentScore} times)</div>
         {#if currentScore >= highScore}
-          <div class="font-semibold">new high score!</div>
+          <div class="mb-1 text-sm font-semibold">new high score!</div>
         {/if}
         <Button
           class="w-full"
