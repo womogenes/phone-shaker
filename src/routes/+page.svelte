@@ -327,7 +327,7 @@
   </div>
 </div>
 
-<Dialog.Root open={showErrorModal} onOpenChange={(open) => showErrorModal = open}>
+<Dialog.Root open={showErrorModal} onOpenChange={(open) => (showErrorModal = open)}>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title class="mb-4">device motion API unsupported</Dialog.Title>
