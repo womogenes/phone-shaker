@@ -155,7 +155,7 @@
           {:else if submitted}
             <div class="mb-4 flex items-center justify-between gap-4">
               <div>
-                <div class="font-semibold text-green-800">score submitted</div>
+                <div class="text-sm font-semibold text-green-800">score submitted</div>
                 <div class="text-sm text-green-700">thanks for playing!</div>
               </div>
               <Button
