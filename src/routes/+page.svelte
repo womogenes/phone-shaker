@@ -283,7 +283,7 @@
         variant="ghost"
         aria-label="View leaderboard"
       >
-        <TrophyIcon class="size-5" />
+        <TrophyIcon class="text-muted-foreground active:text-foreground size-5" />
       </Button>
       <Button
         onclick={() => (showSettingsModal = true)}
@@ -291,14 +291,19 @@
         variant="ghost"
         aria-label="Settings"
       >
-        <SettingsIcon class="size-5" />
+        <SettingsIcon
+          class={cn(
+            'text-muted-foreground active:text-foreground size-5 transition-transform',
+            showSettingsModal ? 'rotate-90' : 'rotate-0',
+          )}
+        />
       </Button>
     </div>
   </div>
 
   <div class="mx-auto flex h-full w-full max-w-md flex-col justify-center px-6">
     <div class="my-4 sm:my-6">
-      <h1 class="text-foreground mb-4 text-xl font-black tracking-tight sm:text-5xl sm:leading-11">
+      <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
         how fast can you shake?
       </h1>
       <p class="text-muted-foreground text-sm">find out today using our silly little app!</p>
@@ -352,9 +357,7 @@
     <div class="flex justify-between gap-2">
       <InfoModal />
       <p>
-        <a class="bg-background underline" href="https://github.com/womogenes/phone-shaker"
-          >source</a
-        >
+        by <a class="underline" href="https://wfeng.dev">womogenes</a>
       </p>
     </div>
   </div>
