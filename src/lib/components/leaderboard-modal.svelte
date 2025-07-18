@@ -41,6 +41,9 @@
   async function submitScore() {
     if (!playerName.trim() || submitting) return;
 
+    // Store player name in localStorage for future use
+    localStorage.setItem('player-name', playerName.trim());
+
     submitting = true;
     error = '';
 
@@ -60,8 +63,6 @@
 
       if (data.success) {
         submitted = true;
-        // Store player name in localStorage for future use
-        localStorage.setItem('player-name', playerName.trim());
         await fetchLeaderboard(); // Refresh leaderboard
       } else {
         error = data.error || 'Failed to submit score';
@@ -111,7 +112,7 @@
       {#if loading}
         <div class="text-muted-foreground py-8 text-sm">loading leaderboard...</div>
       {:else if error}
-        <div class="text-destructive py-4">{error}</div>
+        <div class="text-destructive py-4 text-sm">{error}</div>
         <Button variant="outline" onclick={fetchLeaderboard}>retry</Button>
       {:else}
         <div class="flex flex-col overflow-hidden">
