@@ -106,80 +106,78 @@
 </script>
 
 <Dialog.Root {open} onOpenChange={(newOpen) => (open = newOpen)}>
-  <Dialog.Content class="max-w-md">
-    <Dialog.Header>
-      <Dialog.Title class="flex items-center gap-2">global leaderboard</Dialog.Title>
-    </Dialog.Header>
+  <Dialog.Content class="flex h-full w-full !max-w-none justify-center border-t border-white">
+    <div class="w-full max-w-md">
+      <Dialog.Header class="mb-4 pt-8">
+        <Dialog.Title class="flex items-center gap-2">global leaderboard</Dialog.Title>
+      </Dialog.Header>
 
-    {#if loading}
-      <div class="text-muted-foreground py-8 text-sm">loading leaderboard...</div>
-    {:else if error}
-      <div class="text-destructive py-4 text-center">{error}</div>
-      <div class="flex justify-center">
-        <Button variant="outline" onclick={fetchLeaderboard}>Retry</Button>
-      </div>
-    {:else}
-      <!-- Score submission section -->
-      {#if isNewHighScore && !submitted}
-        <div class="bg-primary/10 border-primary/20 mb-4 rounded-lg border p-4">
-          <div class="text-primary mb-2 font-semibold">new high score!</div>
-          <div class="text-muted-foreground mb-3 text-sm">
-            you shook {currentScore} times! submit your score to the global leaderboard.
-          </div>
-          <div class="flex gap-2">
-            <input
-              bind:value={playerName}
-              placeholder="Enter your name"
-              maxlength="20"
-              class="border-input bg-background flex-1 rounded-md border px-3 py-2 text-sm"
-              disabled={submitting}
-            />
-            <Button onclick={submitScore} disabled={!playerName.trim() || submitting} size="sm">
-              {submitting ? 'submitting...' : 'submit'}
-            </Button>
-          </div>
+      {#if loading}
+        <div class="text-muted-foreground py-8 text-sm">loading leaderboard...</div>
+      {:else if error}
+        <div class="text-destructive py-4 text-center">{error}</div>
+        <div class="flex justify-center">
+          <Button variant="outline" onclick={fetchLeaderboard}>Retry</Button>
         </div>
-      {:else if submitted}
-        <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
-          <div class="mb-1 font-semibold text-green-800">✅ score submitted</div>
-          <div class="text-sm text-green-700">thanks for playing!</div>
+      {:else}
+        <!-- Score submission section -->
+        {#if isNewHighScore && !submitted}
+          <div class="bg-primary/10 border-primary/20 mb-4 rounded-lg border p-4">
+            <div class="text-primary mb-2 font-semibold">new high score!</div>
+            <div class="text-muted-foreground mb-3 text-sm">
+              you shook {currentScore} times! submit your score to the global leaderboard.
+            </div>
+            <div class="flex gap-2">
+              <input
+                bind:value={playerName}
+                placeholder="Enter your name"
+                maxlength="20"
+                class="border-input bg-background flex-1 rounded-md border px-3 py-2 text-sm"
+                disabled={submitting}
+              />
+              <Button onclick={submitScore} disabled={!playerName.trim() || submitting} size="sm">
+                {submitting ? 'submitting...' : 'submit'}
+              </Button>
+            </div>
+          </div>
+        {:else if submitted}
+          <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
+            <div class="mb-1 font-semibold text-green-800">✅ score submitted</div>
+            <div class="text-sm text-green-700">thanks for playing!</div>
+          </div>
+        {/if}
+
+        <!-- Leaderboard table -->
+        <div class="max-h-96 space-y-2 overflow-y-auto text-sm">
+          {#if leaderboard.length === 0}
+            <div class="text-secondary-foreground py-8">no scores yet. be the first to submit!</div>
+          {:else}
+            {#each leaderboard as entry, index}
+              <div class="bg-muted/50 flex items-center justify-between rounded-lg p-3">
+                <div class="flex items-center gap-3">
+                  <div class="text-primary w-8 font-bold">
+                    {getRankEmoji(index)}
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1 font-semibold">
+                      <UserIcon class="h-3 w-3" />
+                      {entry.player_name}
+                    </div>
+                    <div class="text-muted-foreground flex items-center gap-1 text-xs">
+                      <CalendarIcon class="h-3 w-3" />
+                      {formatDate(entry.created_at)}
+                    </div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-lg font-bold">{entry.score}</div>
+                  <div class="text-muted-foreground text-xs">shakes</div>
+                </div>
+              </div>
+            {/each}
+          {/if}
         </div>
       {/if}
-
-      <!-- Leaderboard table -->
-      <div class="max-h-96 space-y-2 overflow-y-auto text-sm">
-        {#if leaderboard.length === 0}
-          <div class="text-secondary-foreground py-8">no scores yet. be the first to submit!</div>
-        {:else}
-          {#each leaderboard as entry, index}
-            <div class="bg-muted/50 flex items-center justify-between rounded-lg p-3">
-              <div class="flex items-center gap-3">
-                <div class="text-primary w-8 font-bold">
-                  {getRankEmoji(index)}
-                </div>
-                <div>
-                  <div class="flex items-center gap-1 font-semibold">
-                    <UserIcon class="h-3 w-3" />
-                    {entry.player_name}
-                  </div>
-                  <div class="text-muted-foreground flex items-center gap-1 text-xs">
-                    <CalendarIcon class="h-3 w-3" />
-                    {formatDate(entry.created_at)}
-                  </div>
-                </div>
-              </div>
-              <div class="text-right">
-                <div class="text-lg font-bold">{entry.score}</div>
-                <div class="text-muted-foreground text-xs">shakes</div>
-              </div>
-            </div>
-          {/each}
-        {/if}
-      </div>
-    {/if}
-
-    <Dialog.Footer>
-      <Button variant="outline" onclick={() => (open = false)}>close</Button>
-    </Dialog.Footer>
+    </div>
   </Dialog.Content>
 </Dialog.Root>

@@ -272,9 +272,32 @@
   }
 </script>
 
-<div class="flex h-full flex-col items-center justify-center pb-5">
-  <div class="mx-auto flex h-full w-full max-w-md flex-col justify-center px-6 pt-10">
-    <div class="mb-8">
+<div class="flex h-full flex-col items-center justify-center">
+  <!-- Full width top bar -->
+  <div class="flex w-full justify-center border-b">
+    <!-- Just the buttons -->
+    <div class="flex w-full max-w-md items-center justify-between px-4">
+      <Button
+        onclick={() => (showLeaderboardModal = true)}
+        size="icon"
+        variant="ghost"
+        aria-label="View leaderboard"
+      >
+        <TrophyIcon class="size-5" />
+      </Button>
+      <Button
+        onclick={() => (showSettingsModal = true)}
+        size="icon"
+        variant="ghost"
+        aria-label="Settings"
+      >
+        <SettingsIcon class="size-5" />
+      </Button>
+    </div>
+  </div>
+
+  <div class="mx-auto flex h-full w-full max-w-md flex-col justify-center px-6">
+    <div class="mb-6">
       <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
         how fast can you shake?
       </h1>
@@ -286,27 +309,6 @@
         <div class="text-muted-foreground text-sm">
           high score: <span class="text-foreground">{highScore}</span><br />
           time: <span class="text-foreground">{timeLeft}s</span>
-        </div>
-
-        <div class="flex items-center">
-          <Button
-            onclick={() => (showLeaderboardModal = true)}
-            class="relative -top-2 -right-2"
-            size="icon"
-            variant="ghost"
-            aria-label="View leaderboard"
-          >
-            <TrophyIcon class="h-5 w-5" />
-          </Button>
-          <Button
-            onclick={() => (showSettingsModal = true)}
-            class="relative -top-2 -right-2"
-            size="icon"
-            variant="ghost"
-            aria-label="Settings"
-          >
-            <SettingsIcon class="h-5 w-5" />
-          </Button>
         </div>
       </div>
 
@@ -351,7 +353,7 @@
     </div> -->
   </div>
 
-  <div class="text-muted-foreground mt-8 w-full max-w-md px-6 text-sm tabular-nums">
+  <div class="text-muted-foreground mt-8 w-full max-w-md px-6 py-5 text-sm tabular-nums">
     <div class="flex justify-between gap-2">
       <InfoModal />
       <p><a class="underline" href="https://github.com/womogenes/phone-shaker">source</a></p>
