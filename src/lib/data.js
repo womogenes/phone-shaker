@@ -8,6 +8,35 @@ export const serialize = (accelerationHistory) => {
   });
 };
 
+export const rotateString = (str, shift) => {
+  return Array.from(str)
+    .map((char) => {
+      return String.fromCharCode(char.charCodeAt(0) + shift);
+    })
+    .join('');
+};
+
+export const obfuscate = (accelerationHistory) => {
+  const b64enc = btoa(serialize(accelerationHistory));
+  const rotationAmt = Math.floor(Math.random() * 64 - 32);
+  const b64encRotated = rotateString(b64enc, rotationAmt);
+  console.log(`rotationAmt: ${Math.floor(Math.random() * 64 - 32)}`);
+  return b64encRotated;
+};
+
+export const deobfuscate = (b64encRotated) => {
+  for (let rotationAmt = -32; rotationAmt < 32; rotationAmt++) {
+    const b64encUnrotated = rotateString(b64encRotated, -rotationAmt);
+    try {
+      const b64enc = atob(b64encUnrotated);
+      return JSON.parse(b64enc);
+    } catch {
+      //
+    }
+  }
+  return [];
+};
+
 export const sendAccelerationHistory = async (accelerationHistory) => {
   // Don't send in dev
   // if (PUBLIC_NODE_ENV === 'development') return;

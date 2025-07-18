@@ -1,5 +1,7 @@
 <script>
   import { onMount } from 'svelte';
+  import { obfuscate, deobfuscate, serialize } from '@/data.js';
+
   import * as Dialog from '$lib/components/ui/dialog';
   import Button from '$lib/components/ui/button/button.svelte';
 
@@ -54,8 +56,8 @@
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          currentScore,
-          hash: btoa(accelerationHistory),
+          score: currentScore,
+          hash: obfuscate(accelerationHistory),
           playerName: playerName.trim(),
         }),
       });
@@ -69,7 +71,7 @@
         error = data.error || 'Failed to submit score';
       }
     } catch (err) {
-      error = 'Network error submitting score';
+      error = `Error submitting score: ${err}`;
     } finally {
       setTimeout(() => (submitting = false), 500);
     }

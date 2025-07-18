@@ -1,4 +1,5 @@
 import { supabaseClient } from '$lib/server/supabase-client.js';
+import { deobfuscate } from '@/data.js';
 import { createShakeDetector } from '@/physics.js';
 
 export async function GET() {
@@ -46,13 +47,15 @@ export async function POST({ request, getClientAddress }) {
 
     // Actually validate input
     const shakeDetector = createShakeDetector();
-    const accelerationHistory = atob(hash);
-    let verifiedScore = 0;
-    for (let [timestamp, x, y, z] of accelerationHistory) {
-      verifiedScore += shakeDetector.detectShake({ x, y, z }, timestamp);
-    }
 
-    if (score != verifiedScore) {
+    try {
+      const accelerationHistory = deobfuscate(hash);
+      let verifiedScore = 0;
+      for (let [timestamp, x, y, z] of accelerationHistory) {
+        verifiedScore += Boolean(shakeDetector.detectShake({ x, y, z }, timestamp));
+      }
+      if (score !== verifiedScore) throw Error;
+    } catch {
       return Response.json(
         {
           error: 'Unverified score',
@@ -90,7 +93,7 @@ export async function POST({ request, getClientAddress }) {
       if (score <= existingEntry.score) {
         return Response.json(
           {
-            error: `you already have a score of ${existingEntry.score}. New score must be higher.`,
+            error: `you (${playerName}) already have a score of ${existingEntry.score}. new score must be higher.`,
             success: false,
           },
           { status: 400 },

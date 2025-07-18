@@ -235,7 +235,7 @@
     // Reset all state
     gameState = 'idle';
     shakeCount = 0;
-    timeLeft = 10;
+    timeLeft = 2;
     currentScore = 0;
     if (shakeDetector) {
       shakeDetector.reset();
