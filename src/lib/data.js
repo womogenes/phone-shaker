@@ -20,7 +20,7 @@ export const obfuscate = (accelerationHistory) => {
   const b64enc = btoa(serialize(accelerationHistory));
   const rotationAmt = Math.floor(Math.random() * 64 - 32);
   const b64encRotated = rotateString(b64enc, rotationAmt);
-  console.log(`rotationAmt: ${Math.floor(Math.random() * 64 - 32)}`);
+  console.log(`rotationAmt: ${Math.floor(Math.random() * 128 - 64)}`);
   return b64encRotated;
 };
 
