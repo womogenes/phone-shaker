@@ -45,7 +45,7 @@ export const sendAccelerationHistory = async (accelerationHistory) => {
 
   const payload = {
     accelerationHistory,
-    posthog_distinct_id: posthog.get_distinct_id()
+    posthog_distinct_id: posthog.get_distinct_id(),
   };
 
   await fetch('/api/shake-data', {
@@ -55,9 +55,9 @@ export const sendAccelerationHistory = async (accelerationHistory) => {
       'Content-Type': 'application/json',
     },
   });
-  
+
   posthog.capture('shake-data', {
     distinct_id: posthog.get_distinct_id(),
-    data: serialize(accelerationHistory)
+    data: serialize(accelerationHistory),
   });
 };

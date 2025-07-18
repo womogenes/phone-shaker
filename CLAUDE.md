@@ -181,12 +181,14 @@ A shake is a **complete oscillation cycle**:
 ## API Endpoints
 
 ### `/api/shake-data` (POST)
+
 - **Purpose**: Submit raw acceleration data for analytics
 - **Data**: Array of `[timestamp, x, y, z]` acceleration readings
 - **Response**: `{ status: 200 }`
 - **Database**: Stores in `shake-data` table with `client_ip`
 
 ### `/api/leaderboard` (GET/POST)
+
 - **GET**: Retrieve top 50 scores from global leaderboard
 - **POST**: Submit new high score with player name
 - **Data Structure**: `{ score: number, playerName: string }`

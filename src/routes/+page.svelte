@@ -34,7 +34,7 @@
   // Game state (pure Svelte 5 reactive state)
   let gameState = $state('idle'); // 'idle', 'playing', 'finished'
   let shakeCount = $state(0);
-  let timeLeft = $state(0);
+  let timeLeft = $state(10);
   let currentScore = $state(0);
   let highScore = $state(0);
 
@@ -139,7 +139,7 @@
       triggerShakeFeedback();
       playShakeSound();
 
-      debugInfo = `motion: ${shakeResult.motionMagnitude.toFixed(1)} (total: ${shakeCount}`;
+      debugInfo = `motion: ${shakeResult.magnitude.toFixed(1)} (total: ${shakeCount}`;
     }
   }
 
@@ -187,6 +187,13 @@
 
     // Start game timer
     startTime = window.performance.now();
+
+    // Ensure timeLeft is properly set before starting timer
+    if (timeLeft <= 0) {
+      debugInfo = 'Error: timeLeft not properly initialized, resetting to 10';
+      timeLeft = 10;
+    }
+
     timerInterval = setInterval(() => {
       timeLeft--;
       debugInfo = `game in progress: ${timeLeft}s remaining`;
