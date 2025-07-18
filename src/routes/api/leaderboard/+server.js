@@ -50,10 +50,13 @@ export async function POST({ request, getClientAddress }) {
 
     try {
       const accelerationHistory = deobfuscate(hash);
+      // console.log('accelerationHistory:', accelerationHistory);
       let verifiedScore = 0;
       for (let [timestamp, x, y, z] of accelerationHistory) {
-        verifiedScore += Boolean(shakeDetector.detectShake({ x, y, z }, timestamp));
+        // console.log(`timestamp: ${timestamp}, x: ${x}, y: ${y}, z: ${z}`);
+        verifiedScore += !!shakeDetector.detectShake({ x, y, z }, timestamp);
       }
+      // console.log('verified score:', verifiedScore, 'claimed score:', score);
       if (score !== verifiedScore) throw Error;
     } catch {
       return Response.json(

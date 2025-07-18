@@ -39,7 +39,6 @@ export const deobfuscate = (b64encRotated) => {
 
 export const sendAccelerationHistory = async (accelerationHistory) => {
   // Don't send in dev
-  if (PUBLIC_NODE_ENV === 'development') return;
 
   // Don't send null data (e.g. from desktops)
   if (!accelerationHistory || accelerationHistory.length === 0) return;
