@@ -44,19 +44,58 @@ export async function POST({ request, getClientAddress }) {
       }, { status: 400 });
     }
 
-    // Insert new score
-    const { data, error } = await supabaseClient
+    // Check if player already exists
+    const { data: existingEntry, error: fetchError } = await supabaseClient
       .from('leaderboard')
-      .insert({
-        score,
-        player_name: playerName.trim(),
-        client_ip: clientIp,
-        created_at: new Date().toISOString()
-      })
-      .select()
+      .select('*')
+      .eq('player_name', playerName.trim())
       .single();
 
-    if (error) throw error;
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      // PGRST116 is "no rows returned" - anything else is a real error
+      throw fetchError;
+    }
+
+    let data;
+    if (existingEntry) {
+      // Player exists - check if new score is higher
+      if (score <= existingEntry.score) {
+        return Response.json({ 
+          error: `You already have a score of ${existingEntry.score}. New score must be higher.`,
+          success: false 
+        }, { status: 400 });
+      }
+
+      // Update existing entry with higher score
+      const { data: updatedData, error: updateError } = await supabaseClient
+        .from('leaderboard')
+        .update({
+          score,
+          client_ip: clientIp,
+          created_at: new Date().toISOString()
+        })
+        .eq('player_name', playerName.trim())
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+      data = updatedData;
+    } else {
+      // Player doesn't exist - insert new entry
+      const { data: insertedData, error: insertError } = await supabaseClient
+        .from('leaderboard')
+        .insert({
+          score,
+          player_name: playerName.trim(),
+          client_ip: clientIp,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+      data = insertedData;
+    }
 
     return Response.json({ 
       success: true,
