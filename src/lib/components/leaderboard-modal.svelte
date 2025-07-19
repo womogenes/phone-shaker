@@ -53,11 +53,11 @@
       const response = await fetch('/api/leaderboard', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
         },
-        body: JSON.stringify({
+        body: obfuscate({
           score: currentScore,
-          hash: obfuscate(accelerationHistory),
+          accelerationHistory,
           playerName: playerName.trim(),
         }),
       });

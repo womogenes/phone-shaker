@@ -16,11 +16,10 @@ export const rotateString = (str, shift) => {
     .join('');
 };
 
-export const obfuscate = (accelerationHistory) => {
-  const b64enc = btoa(serialize(accelerationHistory));
+export const obfuscate = (obj) => {
+  const b64enc = btoa(serialize(obj));
   const rotationAmt = Math.floor(Math.random() * 64 - 32);
   const b64encRotated = rotateString(b64enc, rotationAmt);
-  console.log(`rotationAmt: ${Math.floor(Math.random() * 128 - 64)}`);
   return b64encRotated;
 };
 
@@ -41,7 +40,7 @@ export const sendAccelerationHistory = async (accelerationHistory) => {
   // Don't send null data (e.g. from desktops)
   if (!accelerationHistory || accelerationHistory.length === 0) return;
 
-  const payload = serialize({
+  const payload = obfuscate({
     accelerationHistory,
     posthog_distinct_id: posthog.get_distinct_id(),
   });
@@ -50,7 +49,7 @@ export const sendAccelerationHistory = async (accelerationHistory) => {
     method: 'POST',
     body: payload,
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'text/plain',
     },
   });
 

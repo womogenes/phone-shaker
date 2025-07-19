@@ -19,6 +19,8 @@
     requestMotionPermission,
   } from '$lib/motion.js';
   import { switchToDarkMode, switchToLightMode } from '$lib/theme.js';
+  import { PUBLIC_TIMER } from '$env/static/public';
+
   import { cn } from '@/utils';
 
   // Shadcn components
@@ -191,7 +193,7 @@
     // Ensure timeLeft is properly set before starting timer
     if (timeLeft <= 0) {
       debugInfo = 'Error: timeLeft not properly initialized, resetting to 10';
-      timeLeft = 10;
+      timeLeft = PUBLIC_TIMER;
     }
 
     timerInterval = setInterval(() => {
@@ -242,7 +244,7 @@
     // Reset all state
     gameState = 'idle';
     shakeCount = 0;
-    timeLeft = 10;
+    timeLeft = PUBLIC_TIMER;
     currentScore = 0;
     if (shakeDetector) {
       shakeDetector.reset();

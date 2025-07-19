@@ -31,7 +31,7 @@ export async function GET() {
 
 export async function POST({ request, getClientAddress }) {
   try {
-    const { score, hash, playerName } = await request.json();
+    const { score, accelerationHistory, playerName } = deobfuscate(await request.text());
     const clientIp = getClientAddress();
 
     // Validate input
@@ -49,14 +49,10 @@ export async function POST({ request, getClientAddress }) {
     const shakeDetector = createShakeDetector();
 
     try {
-      const accelerationHistory = deobfuscate(hash);
-      // console.log('accelerationHistory:', accelerationHistory);
       let verifiedScore = 0;
       for (let [timestamp, x, y, z] of accelerationHistory) {
-        // console.log(`timestamp: ${timestamp}, x: ${x}, y: ${y}, z: ${z}`);
         verifiedScore += !!shakeDetector.detectShake({ x, y, z }, timestamp);
       }
-      // console.log('verified score:', verifiedScore, 'claimed score:', score);
       if (score !== verifiedScore) throw Error;
     } catch {
       return Response.json(

@@ -1,7 +1,8 @@
 import { supabaseClient } from '@/server/supabase-client.js';
+import { deobfuscate } from '@/data.js';
 
 export async function POST({ request, getClientAddress }) {
-  const data = await request.json();
+  const data = deobfuscate(await request.text());
   const clientIp = getClientAddress();
   const userAgent = request.headers.get('user-agent') || '';
 
