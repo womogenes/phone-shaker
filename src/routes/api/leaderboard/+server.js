@@ -1,3 +1,4 @@
+import { PUBLIC_TIMER } from '$env/static/public';
 import { supabaseClient } from '$lib/server/supabase-client.js';
 import { deobfuscate } from '@/data.js';
 import { createShakeDetector } from '@/physics.js';
@@ -39,7 +40,6 @@ export async function POST({ request, getClientAddress }) {
       return Response.json(
         {
           error: 'Invalid score',
-          success: false,
         },
         { status: 400 },
       );
@@ -49,16 +49,24 @@ export async function POST({ request, getClientAddress }) {
     const shakeDetector = createShakeDetector();
 
     try {
+      // Recording is done at 60 Hz
+      // Give 5% margin
+      if (accelerationHistory.length > PUBLIC_TIMER * 60 * 1.05) throw Error;
+
       let verifiedScore = 0;
+      let prevTimestamp = 0;
       for (let [timestamp, x, y, z] of accelerationHistory) {
         verifiedScore += !!shakeDetector.detectShake({ x, y, z }, timestamp);
+
+        // Entries must be in order
+        if (timestamp <= prevTimestamp) throw Error;
+        prevTimestamp = timestamp;
       }
       if (score !== verifiedScore) throw Error;
     } catch {
       return Response.json(
         {
           error: 'Unverified score',
-          success: false,
         },
         { status: 400 },
       );
@@ -68,7 +76,6 @@ export async function POST({ request, getClientAddress }) {
       return Response.json(
         {
           error: 'Invalid player name (max 20 chars)',
-          success: false,
         },
         { status: 400 },
       );
