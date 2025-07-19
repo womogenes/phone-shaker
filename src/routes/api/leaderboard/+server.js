@@ -10,6 +10,7 @@ export async function GET() {
       .from('leaderboard')
       .select('created_at,score,player_name')
       .order('score', { ascending: false })
+      .order('created_at', { ascending: true })
       .limit(50);
 
     if (error) throw error;
