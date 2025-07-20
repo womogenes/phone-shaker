@@ -9,3 +9,4 @@ todo:
 - [ ] global leaderboard
 - [ ] emoji filling the screen when you shake
 - [ ] share to socials
+- [ ] different kinds of shaking?

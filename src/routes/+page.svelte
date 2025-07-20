@@ -286,7 +286,7 @@
   <!-- Full width top bar -->
   <div class="flex w-full justify-center border-b">
     <!-- Just the buttons -->
-    <div class="flex w-full max-w-md items-center justify-between px-4">
+    <div class="flex w-full max-w-md items-center justify-between px-3">
       <Button
         onclick={() => (showLeaderboardModal = true)}
         size="icon"
@@ -311,12 +311,12 @@
     </div>
   </div>
 
-  <div class="mx-auto flex h-full w-full max-w-md flex-col justify-center px-6">
+  <div class="mx-auto flex h-full w-full max-w-md flex-col justify-center px-4">
     <div class="my-6">
       <h1 class="text-foreground mb-4 text-5xl leading-11 font-black tracking-tight">
         how fast can you shake?
       </h1>
-      <p class="text-muted-foreground text-sm">find out today using our silly little app!</p>
+      <p class="text-muted-foreground text-sm">shake your phone as fast as you can for 10s</p>
     </div>
 
     <div class="mb-8">
@@ -363,7 +363,7 @@
     </div> -->
   </div>
 
-  <div class="text-muted-foreground w-full max-w-md px-6 py-5 text-sm tabular-nums">
+  <div class="text-muted-foreground w-full max-w-md px-4 py-3 text-sm tabular-nums">
     <div class="flex justify-between gap-2">
       <InfoModal />
       <p>

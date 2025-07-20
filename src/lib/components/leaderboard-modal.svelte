@@ -111,7 +111,9 @@
     open = newOpen;
   }}
 >
-  <Dialog.Content class="border-background flex h-full w-full !max-w-none justify-center border-t">
+  <Dialog.Content
+    class="border-background flex h-full w-full !max-w-none justify-center border-t !p-4"
+  >
     <div class="flex h-full w-full max-w-md flex-col overflow-hidden">
       <Dialog.Header class="mb-4 flex-shrink-0 pt-8">
         <Dialog.Title class="flex items-center gap-2">global leaderboard</Dialog.Title>
