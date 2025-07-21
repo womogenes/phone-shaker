@@ -354,7 +354,13 @@
         >
           LEADERBOARD
         </Button>
-        <Button onclick={resetGame} size="xl">PLAY AGAIN</Button>
+        <Button
+          onclick={() => {
+            resetGame();
+            startGame();
+          }}
+          size="xl">PLAY AGAIN</Button
+        >
       {/if}
     </div>
 
