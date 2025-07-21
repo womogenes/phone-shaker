@@ -5,7 +5,7 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import Button from '$lib/components/ui/button/button.svelte';
 
-  import { TrophyIcon, UserIcon, CalendarIcon, Loader2Icon } from '@lucide/svelte';
+  import { Loader2Icon } from '@lucide/svelte';
 
   // Props
   let { open = $bindable(), currentScore = 0, accelerationHistory = [], resetGame } = $props();
@@ -130,8 +130,8 @@
           {#if !submitted && currentScore > 0}
             <div class="mb-4 flex-shrink-0 rounded-lg border p-4">
               <div class="text-muted-foreground mb-3 text-sm">
-                you shook <b class="text-foreground">{currentScore}</b> times! submit your score to the
-                global leaderboard.
+                submit your high score of <b class="text-foreground">{currentScore}</b> to the global
+                leaderboard!
               </div>
               <div class="flex items-center gap-2">
                 <input
@@ -184,11 +184,9 @@
                     </div>
                     <div>
                       <div class="flex items-center gap-2 font-semibold">
-                        <UserIcon class="h-3 w-3" />
                         {entry.player_name}
                       </div>
                       <div class="text-muted-foreground flex items-center gap-2 text-xs">
-                        <CalendarIcon class="h-3 w-3" />
                         <span class="mt-[2px]">{formatDate(entry.created_at)}</span>
                       </div>
                     </div>

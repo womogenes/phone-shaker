@@ -67,7 +67,7 @@ export async function POST({ request, getClientAddress }) {
     } catch {
       return Response.json(
         {
-          error: 'Unverified score',
+          error: 'Unverified score. Try clearing local data and trying again',
         },
         { status: 400 },
       );

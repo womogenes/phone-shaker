@@ -8,7 +8,7 @@
     playGameEndSound,
     playShakeSound,
   } from '$lib/audio.js';
-  import { sendAccelerationHistory } from '$lib/data.js';
+  import { sendAccelerationHistory, obfuscate, deobfuscate } from '$lib/data.js';
   import { createShakeDetector, isValidAcceleration } from '$lib/physics.js';
   import { triggerGameEndFeedback, triggerShakeFeedback } from '$lib/haptic.js';
   import {
@@ -49,6 +49,7 @@
   let permissionStatus = $state('');
   let acceleration = $state({ x: 0, y: 0, z: 0 });
   let accelerationHistory = $state([]);
+  let highScoreAccelerationHistory = $state([]);
   let startTime = $state(0);
   let showSettingsModal = $state(false);
   let showLeaderboardModal = $state(false);
@@ -65,6 +66,10 @@
     const savedHighScore = localStorage.getItem('high-score');
     if (savedHighScore) {
       highScore = parseInt(savedHighScore, 10);
+    }
+    const savedHighScoreHistory = localStorage.getItem('high-score-history');
+    if (savedHighScoreHistory) {
+      highScoreAccelerationHistory = deobfuscate(savedHighScoreHistory);
     }
 
     // Initialize shake detector
@@ -219,6 +224,8 @@
     if (isNewHighScore) {
       highScore = currentScore;
       localStorage.setItem('high-score', highScore.toString());
+      localStorage.setItem('high-score-history', obfuscate(accelerationHistory));
+      highScoreAccelerationHistory = accelerationHistory;
     }
 
     // Switch back to light mode
@@ -333,7 +340,7 @@
       </div>
     </div>
 
-    <div class="flex h-44 flex-col space-y-2">
+    <div class="flex h-44 flex-col">
       {#if gameState === 'idle'}
         <Button onclick={startGame} size="xl">START</Button>
       {:else if gameState === 'playing'}
@@ -342,12 +349,12 @@
           <div class="text-muted-foreground text-sm">keep shaking your phone</div>
         </div>
       {:else if gameState === 'finished'}
-        <div class="text-sm"><b>game over</b> (you shook {currentScore} times)</div>
+        <div class="mb-1 text-sm"><b>game over</b> (you shook {currentScore} times)</div>
         {#if currentScore >= highScore}
-          <div class="mb-2 text-sm font-semibold">new high score!</div>
+          <div class="text-sm font-semibold">new high score!</div>
         {/if}
         <Button
-          class="w-full"
+          class="mt-2 w-full"
           size="xl"
           onclick={() => (showLeaderboardModal = true)}
           variant="outline"
@@ -355,6 +362,7 @@
           LEADERBOARD
         </Button>
         <Button
+          class="mt-3"
           onclick={() => {
             resetGame();
             startGame();
@@ -405,7 +413,7 @@
 <!-- Leaderboard Modal -->
 <LeaderboardModal
   bind:open={showLeaderboardModal}
-  {currentScore}
-  {accelerationHistory}
+  currentScore={highScore}
+  accelerationHistory={highScoreAccelerationHistory}
   {resetGame}
 />
